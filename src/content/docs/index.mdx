@@ -1,40 +1,63 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
-hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
-  actions:
-    - text: Example Guide
-      link: /guides/example/
-      icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
-      variant: minimal
+title: Introduction
+description: Learn how Data Health detects, records, and resolves inconsistencies in Laravel application data.
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+Data Health is a Laravel package for finding inconsistencies in application data and turning them into records that can be reviewed, verified, and resolved.
 
-## Next steps
+It is designed for problems that valid database rows and ordinary validation rules cannot describe on their own: duplicate customers, orders stuck in an impossible state, missing relationships, stale derived values, or any other condition that makes otherwise valid data incorrect.
 
-<CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
-	</Card>
-</CardGrid>
+## The basic idea
+
+A **finding** is a PHP class that describes one type of data problem. When your detection code encounters that problem for an Eloquent model, the finding creates a persistent **finding record** containing the affected model, its status, its urgency, and any context needed to understand the issue.
+
+This separates two concerns:
+
+- Your application defines what unhealthy data looks like and how it can be checked or corrected.
+- Data Health keeps track of every discovered occurrence and its lifecycle.
+
+Finding classes live in configured directories such as `app/DataHealth`. Data Health discovers them automatically, so each class can focus on the problem it represents instead of registration boilerplate.
+
+## The finding lifecycle
+
+A typical finding moves through the following lifecycle:
+
+1. **Detect** — Application code scans for a known inconsistency and reports each affected model.
+2. **Record** — Data Health stores a finding record with a stable identity derived from the finding type, model, and context.
+3. **Review** — Operators or application code inspect the active finding and decide what should happen next.
+4. **Verify** — A finding can check whether the underlying problem still exists and mark the record as resolved when it no longer does.
+5. **Resolve** — A finding can correct the problem itself and mark the record as resolved after the correction succeeds.
+
+Detection may run directly from application code, on a schedule, through a queue, or manually from the optional Filament interface. Reporting the same active problem again updates its timestamp instead of creating a duplicate record, while a resolved problem can become active again if it is detected later.
+
+## What a finding can describe
+
+Each finding class can opt into only the capabilities it needs:
+
+- **Detection** finds affected models and records the problem.
+- **Verification** checks whether a previously recorded problem still exists.
+- **Resolution** performs an application-specific correction.
+- **Scheduling** runs detection from Laravel's scheduler using a cron expression.
+- **Asynchronous execution** dispatches scheduled detection through Laravel's queue.
+- **Automatic resolution** attempts to resolve a finding as soon as it is first recorded.
+
+Attributes can also give a finding a stable key, human-readable descriptions, an urgency, and a worklist. These values make findings easier to organize and present without coupling the core package to a particular user interface.
+
+## Core package and Filament interface
+
+The Data Health core package owns finding discovery, persistence, lifecycle operations, scheduling, and model integration. It can be used by itself from application code, jobs, commands, APIs, or any interface you build.
+
+The optional `data-health-filament` package adds a Filament 5 interface with:
+
+- searchable and filterable finding records;
+- verify, resolve, ignore, and reopen actions;
+- bulk actions for common workflows;
+- a catalogue of registered finding types with manual detection actions;
+- overview statistics for the current state of your data; and
+- standalone Livewire tables that can be embedded outside a Filament panel.
+
+Both packages use the same finding classes and records, so adding the Filament interface does not change how detection or resolution logic is written.
+
+## Where to go next
+
+Continue with [Installation](/start-here/installation/) to add Data Health to a Laravel application, or follow the [Quick Start](/start-here/quick-start/) to build a complete finding workflow.
