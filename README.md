@@ -1,49 +1,65 @@
-# Starlight Starter Kit: Basics
+# Data Health Documentation
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+This Starlight site documents Data Health, a Laravel package for detecting data inconsistencies, tracking each occurrence, and verifying or resolving the underlying problem.
 
-```
-npm create astro@latest -- --template starlight
-```
+The documentation covers both Composer packages:
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- `data-health/data-health` — finding discovery, persistence, lifecycle operations, scheduling, queues, and model integration.
+- `data-health/data-health-filament` — the optional Filament 5 operator interface.
 
-## 🚀 Project Structure
+## Requirements
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+- Node.js supported by the installed Astro version
+- npm
 
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+The package requirements described by the site are PHP 8.3 or newer and Laravel 12 or 13. The optional interface requires Filament 5.
+
+## Local development
+
+Install dependencies:
+
+```bash
+npm install
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+Start Astro's background development server:
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+```bash
+npm run astro -- dev --background
+```
 
-Static assets, like favicons, can be placed in the `public/` directory.
+Inspect or stop it with:
 
-## 🧞 Commands
+```bash
+npm run astro -- dev status
+npm run astro -- dev logs
+npm run astro -- dev stop
+```
 
-All commands are run from the root of the project, from a terminal:
+Build the production site before submitting documentation changes:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+```bash
+npm run build
+```
 
-## 👀 Want to learn more?
+## Content structure
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+Documentation pages live in `src/content/docs` and are organized as:
+
+- `start-here` — installation and the first end-to-end workflow;
+- `core-concepts` — finding identity, records, lifecycle, and discovery;
+- `guides` — development and operational workflows;
+- `filament` — optional interface installation, authorization, and features; and
+- `reference` — configuration, public APIs, database schema, and troubleshooting.
+
+The sidebar order is defined in `astro.config.mjs`. When adding or renaming a page, update the sidebar and verify every internal link in the production build.
+
+## Writing conventions
+
+- Document observable package behavior and public extension points.
+- Keep examples aligned with the current package namespaces and Composer names.
+- Use stable, internally consistent example keys and context schemas.
+- State important compatibility limitations near installation steps, not only in reference pages.
+- Prefer focused examples and link to deeper guides instead of repeating large implementations.
+
+This repository contains documentation source only. Package behavior should be changed and tested in the corresponding Laravel package repository before its documentation is updated here.

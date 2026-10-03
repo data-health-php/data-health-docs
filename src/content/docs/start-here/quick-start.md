@@ -29,8 +29,8 @@ status:  pending
 
 The finding will consider an order unhealthy when `paid_at` is not null and `status` is `pending`.
 
-:::note
-This guide assumes you have completed [Installation](/start-here/installation/) and run the Data Health migrations. Adapt the model attributes and valid status values to your own application.
+:::note[Adapt this example]
+This is an adaptation recipe for an existing Laravel application, not scaffolding for a blank project. It assumes you have completed [Installation](/start-here/installation/), run the Data Health migrations, and have an `Order` model with the fields above. Replace the model, query, and valid status values with a real inconsistency from your application.
 :::
 
 ## Create the finding

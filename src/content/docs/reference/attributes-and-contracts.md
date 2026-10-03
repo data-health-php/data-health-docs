@@ -14,6 +14,7 @@ Use this reference when defining a finding or integrating Data Health with appli
 - [Verification contracts](#verification-contracts)
 - [Resolution contracts](#resolution-contracts)
 - [Facades and manager methods](#facades-and-manager-methods)
+- [Finding record operations](#finding-record-operations)
 - [Enums](#enums)
 
 ## Complete finding example
@@ -38,7 +39,7 @@ use DataHealth\Finding;
 #[Key('paid-order-marked-pending')]
 #[Description('A paid order is still marked as pending.')]
 #[Urgency(FindingUrgency::SOON)]
-#[Worklist('Billing')]
+#[Worklist('billing-operations')]
 #[Scheduled('*/15 * * * *')]
 #[Async(queue: 'data-health', connection: 'redis')]
 #[AutoResolve]
@@ -51,7 +52,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, Ca
         Order::query()
             ->whereNotNull('paid_at')
             ->where('status', 'pending')
-            ->each(function (Order $order) use (&$count): void {
+            ->eachById(function (Order $order) use (&$count): void {
                 self::found($order);
                 $count++;
             });
@@ -59,10 +60,14 @@ class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, Ca
         return $count;
     }
 
-    #[Description('Check whether the order is still pending.')]
+    #[Description('Check whether the order is no longer both paid and pending.')]
     public function verify(): bool
     {
-        return $this->model->fresh()?->status !== 'pending';
+        $order = $this->model->fresh();
+
+        return $order === null
+            || $order->paid_at === null
+            || $order->status !== 'pending';
     }
 
     #[Description('Mark the order as paid.')]
@@ -100,7 +105,7 @@ All attributes are in `DataHealth\Attributes`.
 | Attribute | Target and constructor | Effect |
 | --- | --- | --- |
 | `Key` | Class: `new Key(string $key)` | Gives the finding a stable stored identity instead of using its class basename. |
-| `Description` | Class or method: `new Description(string $description)` | Describes the finding type or a `verify()` / `resolve()` action in user interfaces. |
+| `Description` | Class or method: `new Description(string $description)` | Describes the finding type or its `detect()`, `verify()`, or `resolve()` action in user interfaces. |
 | `Urgency` | Class: `new Urgency(FindingUrgency $urgency)` | Sets urgency on newly created records; the default is `NORMAL`. |
 | `Worklist` | Class: `new Worklist(string $worklist)` | Assigns newly created records to a named operational worklist. |
 | `Scheduled` | Class: `new Scheduled(string $expression)` | Registers a `CanDetect` finding with Laravel's scheduler using a five-field cron expression. |
@@ -180,6 +185,8 @@ A final `true` result marks the record `resolved`; `false` leaves its status unc
 | `verify(FindingRecord $record): bool` | Executes the finding's verification behavior and updates status on success. |
 | `resolve(FindingRecord $record): bool` | Executes the finding's resolution behavior and updates status on success. |
 
+`$record->getFinding()` is the record-oriented convenience for `DataHealth::getFindingForRecord($record)`. Both reconstruct the same finding instance from its stored key, affected model, and context; use whichever reads more naturally at the call site.
+
 `DataHealth\Facades\CheckCursor` exposes one operation for bounded scans:
 
 ```php
@@ -187,6 +194,38 @@ CheckCursor::next(Builder $query, string $check, int $limit): Collection;
 ```
 
 Pass a query ordered by its numeric primary key, the finding class as `$check`, and a positive batch size. See [Large Datasets](/guides/large-datasets/) for behavior and third-party API patterns.
+
+## Finding record operations
+
+Verification and automatic resolution should go through the `DataHealth` facade so the package executes the finding behavior before changing status. The remaining lifecycle operations are direct changes to the public `FindingRecord` model:
+
+```php
+use DataHealth\Enums\RecordStatus;
+
+// Ignore this occurrence.
+$record->update(['status' => RecordStatus::Ignored]);
+
+// Reopen an ignored or resolved occurrence.
+$record->update(['status' => RecordStatus::Active]);
+
+// Mark it resolved without verification or resolution logic.
+$record->update(['status' => RecordStatus::Resolved]);
+```
+
+These updates intentionally do not call `verify()` or `resolve()`. Rediscovery keeps an ignored record ignored, while rediscovery changes a resolved record back to active.
+
+Use the polymorphic relationship to assign an application model without depending on the Filament integration:
+
+```php
+$record->assignee()->associate($user);
+$record->save();
+
+// Remove the assignment later.
+$record->assignee()->dissociate();
+$record->save();
+```
+
+Data Health stores assignment but does not define eligible assignee types or authorization rules in the core package. Those decisions belong to the application.
 
 ## Enums
 

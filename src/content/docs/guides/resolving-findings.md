@@ -103,12 +103,12 @@ public function resolve(): callable
     /** @var Customer $customer */
     $customer = $this->model;
 
-    $duplicateId = $this->context['duplicate_customer_id'];
+    $canonicalId = $this->context['canonical_customer_id'];
 
-    return function (CustomerMerger $merger) use ($customer, $duplicateId): bool {
+    return function (CustomerMerger $merger) use ($customer, $canonicalId): bool {
         return $merger->merge(
             duplicate: $customer,
-            canonicalId: $duplicateId,
+            canonicalId: $canonicalId,
         );
     };
 }

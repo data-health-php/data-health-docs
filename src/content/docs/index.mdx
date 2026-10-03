@@ -22,6 +22,18 @@ Finding classes live in configured directories such as `app/DataHealth`. Data He
 
 A typical finding moves through the following lifecycle:
 
+```text
+                         ignore
+                      ┌──────────► ignored
+                      │                │
+detect ──► active ────┤                │ reopen
+   ▲                  │                ▼
+   │                  └──────────► active
+   │             verify or resolve
+   │                       │
+   └────── re-detect ◄── resolved
+```
+
 1. **Detect** — Application code scans for a known inconsistency and reports each affected model.
 2. **Record** — Data Health stores a finding record with a stable identity derived from the finding type, model, and context.
 3. **Review** — Operators or application code inspect the active finding and decide what should happen next.
