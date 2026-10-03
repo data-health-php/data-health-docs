@@ -30,7 +30,7 @@ Work from the symptom below, then confirm that cached configuration and long-run
 Check the discovery contract in this order:
 
 1. The configured directory exists relative to the Laravel application's base path.
-2. The configured root namespace value includes its trailing backslash.
+2. The configured root namespace maps the directory to the correct autoloadable prefix; a trailing backslash is optional.
 3. The class namespace and filename mirror their path below that directory.
 4. The class is concrete and extends `DataHealth\Finding`.
 5. Composer can autoload the application namespace.

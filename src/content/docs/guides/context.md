@@ -242,11 +242,11 @@ MissingRequirement::found($account, [
 
 ### Conflicting models
 
-Attach the finding to the model being reviewed and identify the other model by its key:
+Attach the finding to the duplicate model and identify the canonical model by its key:
 
 ```php
-DuplicateCustomer::found($customer, [
-    'duplicate_customer_id' => $duplicate->getKey(),
+DuplicateCustomer::found($duplicate, [
+    'canonical_customer_id' => $canonical->getKey(),
 ]);
 ```
 

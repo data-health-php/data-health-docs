@@ -29,11 +29,16 @@ export default defineConfig({
 					items: [
 						{ label: 'Detecting Problems', slug: 'guides/detecting-problems' },
 						{ label: 'Context', slug: 'guides/context' },
-						{ label: 'Large Datasets', slug: 'guides/large-datasets' },
 						{ label: 'Verifying Findings', slug: 'guides/verifying-findings' },
 						{ label: 'Resolving Findings', slug: 'guides/resolving-findings' },
-						{ label: 'Scheduling and Queues', slug: 'guides/scheduling-and-queues' },
 						{ label: 'Metadata and Worklists', slug: 'guides/metadata-and-worklists' },
+					],
+				},
+				{
+					label: 'Operations',
+					items: [
+						{ label: 'Scheduling and Queues', slug: 'guides/scheduling-and-queues' },
+						{ label: 'Large Datasets', slug: 'guides/large-datasets' },
 						{ label: 'Model Cleanup', slug: 'guides/model-cleanup' },
 					],
 				},
@@ -42,11 +47,11 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', slug: 'filament/overview' },
 						{ label: 'Installation', slug: 'filament/installation' },
+						{ label: 'Authorization', slug: 'filament/authorization' },
 						{ label: 'Managing Findings', slug: 'filament/managing-findings' },
 						{ label: 'Finding Types and Detection', slug: 'filament/finding-types-and-detection' },
 						{ label: 'Standalone Components', slug: 'filament/standalone-components' },
 						{ label: 'Configuration and Model Links', slug: 'filament/configuration-and-model-links' },
-						{ label: 'Authorization', slug: 'filament/authorization' },
 					],
 				},
 				{

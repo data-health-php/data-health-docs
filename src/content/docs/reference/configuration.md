@@ -70,7 +70,7 @@ Each entry in `directories` maps a path relative to the application base path to
 ],
 ```
 
-The namespace value must include its trailing backslash, and the namespace below it must mirror the directory structure. Only concrete subclasses of `DataHealth\Finding` are registered.
+The namespace may include or omit its trailing backslash because Data Health normalizes it before appending the relative class name. The namespace below it must mirror the directory structure, and only concrete subclasses of `DataHealth\Finding` are registered.
 
 See [Finding Discovery](/core-concepts/finding-discovery/) for the complete discovery rules.
 
