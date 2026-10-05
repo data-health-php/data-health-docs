@@ -330,4 +330,4 @@ it('marks a paid pending order as paid', function () {
 
 Also test the failure path, repeated execution, stale model state, and exceptions from injected services. For `AutoResolve`, assert separately that successful new findings become resolved and failed ones remain active.
 
-Continue with [Scheduling and Queues](/guides/scheduling-and-queues/) to automate detection, or [Managing Findings](/filament/managing-findings/) to expose resolution actions through Filament.
+Continue with [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) to automate detection, or [Managing Findings](/data-health-docs/filament/managing-findings/) to expose resolution actions through Filament.

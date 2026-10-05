@@ -75,7 +75,7 @@ The Model column becomes a link when the package can produce a destination for t
 
 If the model was deleted or no destination can be resolved, the label remains unlinked.
 
-See [Configuration and Model Links](/filament/configuration-and-model-links/) for route maps and resolvers.
+See [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/) for route maps and resolvers.
 
 ## Assign a finding
 
@@ -85,7 +85,7 @@ The action stores `assignee_type` and `assignee_id` on the finding record. Submi
 
 Assignment does not change finding status, urgency, or worklist. It identifies who owns the individual occurrence, while worklist groups occurrences into a broader operational queue.
 
-Configure available assignee models and option restrictions in [Configuration and Model Links](/filament/configuration-and-model-links/#configure-assignees).
+Configure available assignee models and option restrictions in [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/#configure-assignees).
 
 ## Verify a finding
 
@@ -95,7 +95,7 @@ Verification appears for active records whose finding implements `CanVerify`. Ru
 - `false` reports that the finding still applies and leaves it active; and
 - an exception leaves the status unchanged and follows the application's exception handling.
 
-Verification is intended to recheck current data without changing it. See [Verifying Findings](/guides/verifying-findings/) for implementation patterns.
+Verification is intended to recheck current data without changing it. See [Verifying Findings](/data-health-docs/guides/verifying-findings/) for implementation patterns.
 
 ## Resolve a finding
 
@@ -107,7 +107,7 @@ Resolution appears for active records whose finding implements `CanResolve`. It 
 
 The confirmation dialog uses the resolver method description when available, so finding authors should describe the changes operators are authorizing.
 
-See [Resolving Findings](/guides/resolving-findings/) for safe, idempotent resolver design.
+See [Resolving Findings](/data-health-docs/guides/resolving-findings/) for safe, idempotent resolver design.
 
 ## Mark a finding as resolved
 
@@ -171,4 +171,4 @@ Widget polling is disabled by default. Configure a Filament polling interval to 
 
 Set it to `null` to keep polling disabled. Choose an interval that balances freshness with the cost of running four count queries repeatedly.
 
-Continue with [Finding Types and Detection](/filament/finding-types-and-detection/) to run detection manually, or [Authorization](/filament/authorization/) before granting operator access.
+Continue with [Finding Types and Detection](/data-health-docs/filament/finding-types-and-detection/) to run detection manually, or [Authorization](/data-health-docs/filament/authorization/) before granting operator access.

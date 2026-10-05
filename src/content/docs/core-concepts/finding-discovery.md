@@ -206,4 +206,4 @@ When a finding is missing from the registry, check the following in order:
 
 A missing directory is ignored, but an existing directory that cannot be read causes discovery to throw a `RuntimeException` naming the configured path.
 
-Continue with [Detecting Problems](/guides/detecting-problems/) to use discovered classes in application workflows, or review [Attributes and Contracts](/reference/attributes-and-contracts/) for the complete discovery-related API.
+Continue with [Detecting Problems](/data-health-docs/guides/detecting-problems/) to use discovered classes in application workflows, or review [Attributes and Contracts](/data-health-docs/reference/attributes-and-contracts/) for the complete discovery-related API.

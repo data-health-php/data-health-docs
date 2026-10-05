@@ -205,4 +205,4 @@ This keeps `php artisan config:cache` compatible. Runtime URL resolution accepts
 
 After changing cached configuration, rebuild the cache and restart long-running processes that may retain old values.
 
-Continue with [Authorization](/filament/authorization/) to protect these capabilities, or [Standalone Components](/filament/standalone-components/) to embed configured tables outside a panel.
+Continue with [Authorization](/data-health-docs/filament/authorization/) to protect these capabilities, or [Standalone Components](/data-health-docs/filament/standalone-components/) to embed configured tables outside a panel.

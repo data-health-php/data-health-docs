@@ -213,4 +213,4 @@ Test global cleanup with a model that does not use `HasFindingRecords`, enable t
 
 For soft-deletable models, test both soft deletion and restoration so the application's expected re-detection workflow is explicit. Add a separate test for any bulk-delete path because model-event cleanup does not cover it.
 
-The Guides section is now complete. Continue with [Filament Overview](/filament/overview/) to add an operational interface, or use [Configuration](/reference/configuration/) as a concise package reference.
+The Guides section is now complete. Continue with [Filament Overview](/data-health-docs/filament/overview/) to add an operational interface, or use [Configuration](/data-health-docs/reference/configuration/) as a concise package reference.

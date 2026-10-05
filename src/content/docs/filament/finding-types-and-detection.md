@@ -98,7 +98,7 @@ If detection throws, the success notification is not sent and the exception foll
 
 Avoid unbounded scans that can exceed web request timeouts. Prefer database chunking, persistent cursor batches, scheduled asynchronous detection, or a custom action that dispatches application-owned work.
 
-See [Large Datasets](/guides/large-datasets/) and [Scheduling and Queues](/guides/scheduling-and-queues/).
+See [Large Datasets](/data-health-docs/guides/large-datasets/) and [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/).
 
 ## Scheduled and manual detection
 
@@ -116,4 +116,4 @@ Render the same catalogue outside a panel:
 
 The standalone table includes the same search, capability columns, confirmation dialog, and detection action. Protect the containing route because the component adds no authorization.
 
-Continue with [Standalone Components](/filament/standalone-components/) for setup, or [Managing Findings](/filament/managing-findings/) to work with detected records.
+Continue with [Standalone Components](/data-health-docs/filament/standalone-components/) for setup, or [Managing Findings](/data-health-docs/filament/managing-findings/) to work with detected records.

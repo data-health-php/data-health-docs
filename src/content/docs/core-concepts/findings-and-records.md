@@ -81,7 +81,7 @@ class PaidOrderMarkedPending extends Finding
 }
 ```
 
-See [Metadata and Worklists](/guides/metadata-and-worklists/) for the complete attribute workflow.
+See [Metadata and Worklists](/data-health-docs/guides/metadata-and-worklists/) for the complete attribute workflow.
 
 ## Finding records
 
@@ -135,7 +135,7 @@ Because the model is part of finding identity, the same finding type reported fo
 Findings are model-oriented: `Finding` requires an Eloquent model when it is constructed. For an application-wide problem, attach the finding to the most appropriate persistent model or introduce a model representing the monitored resource.
 :::
 
-Deleting an affected model can leave a polymorphic record without its model unless cleanup is enabled. See [Model Cleanup](/guides/model-cleanup/) for the global and opt-in cleanup strategies.
+Deleting an affected model can leave a polymorphic record without its model unless cleanup is enabled. See [Model Cleanup](/data-health-docs/guides/model-cleanup/) for the global and opt-in cleanup strategies.
 
 ## Finding identity and deduplication
 
@@ -272,4 +272,4 @@ Subsequent events behave as follows:
 
 This gives each finding occurrence a durable identity: it can appear, be investigated, be resolved, and recur without losing its relationship to the affected model.
 
-Continue with [Finding Discovery](/core-concepts/finding-discovery/) to learn how keys are mapped to classes, or see [Detecting Problems](/guides/detecting-problems/) to build production detection workflows.
+Continue with [Finding Discovery](/data-health-docs/core-concepts/finding-discovery/) to learn how keys are mapped to classes, or see [Detecting Problems](/data-health-docs/guides/detecting-problems/) to build production detection workflows.

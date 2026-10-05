@@ -81,7 +81,7 @@ A Filament panel is optional. The package registers Livewire components that can
 
 The standalone components reuse the same table definitions and actions as the panel integration. They are useful in custom administration areas, model detail screens, or applications that use Filament components without Panel Builder.
 
-See [Standalone Components](/filament/standalone-components/) for layout, assets, scoping, and access control.
+See [Standalone Components](/data-health-docs/filament/standalone-components/) for layout, assets, scoping, and access control.
 
 ## Finding management
 
@@ -145,6 +145,6 @@ Data Health Filament does not authorize access to findings or their actions. The
 
 Only expose the panel or component routes to trusted users. If different users need different capabilities, enforce that distinction outside the package or build an application-specific resource with the required policies and action visibility.
 
-See [Authorization](/filament/authorization/) before enabling the integration in production.
+See [Authorization](/data-health-docs/filament/authorization/) before enabling the integration in production.
 
-Continue with [Installation](/filament/installation/) to register the plugin, or [Managing Findings](/filament/managing-findings/) for the operator workflow.
+Continue with [Installation](/data-health-docs/filament/installation/) to register the plugin, or [Managing Findings](/data-health-docs/filament/managing-findings/) for the operator workflow.

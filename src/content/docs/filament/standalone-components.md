@@ -84,7 +84,7 @@ Embed the discovery catalogue and manual detection actions:
 
 The table lists deployed finding types rather than database records. Detect actions run synchronously in the Livewire request and appear only for classes implementing `CanDetect`.
 
-See [Finding Types and Detection](/filament/finding-types-and-detection/) for result and failure behavior.
+See [Finding Types and Detection](/data-health-docs/filament/finding-types-and-detection/) for result and failure behavior.
 
 ## Include Filament assets
 
@@ -124,7 +124,7 @@ Affected-model links and assignee options use the same `data-health-filament` co
 
 Outside a current panel, model links cannot use Filament's automatic resource-view fallback. Configure a named route or custom URL resolver when standalone tables should link to affected models.
 
-Assignment remains hidden until an `assignee_types` provider is configured. See [Configuration and Model Links](/filament/configuration-and-model-links/).
+Assignment remains hidden until an `assignee_types` provider is configured. See [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/).
 
 ## Use components alongside a panel
 
@@ -157,4 +157,4 @@ Give tables enough horizontal space for badges, model labels, actions, and filte
 
 Place a model-scoped table near the model's operational controls and explain finding statuses to audiences unfamiliar with Data Health. For large global tables, prefer a dedicated page rather than embedding the component in a crowded dashboard card.
 
-Continue with [Configuration and Model Links](/filament/configuration-and-model-links/) or review [Authorization](/filament/authorization/) before exposing standalone actions.
+Continue with [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/) or review [Authorization](/data-health-docs/filament/authorization/) before exposing standalone actions.

@@ -239,4 +239,4 @@ Before deploying metadata, consider:
 
 Treat keys and worklists as stable identifiers. Treat descriptions as user-facing copy. Treat urgency as an operational policy decision that should be reviewed when the impact of a finding changes.
 
-Continue with [Model Cleanup](/guides/model-cleanup/) to manage records when affected models are deleted, or [Managing Findings](/filament/managing-findings/) to see how metadata appears in Filament.
+Continue with [Model Cleanup](/data-health-docs/guides/model-cleanup/) to manage records when affected models are deleted, or [Managing Findings](/data-health-docs/filament/managing-findings/) to see how metadata appears in Filament.
