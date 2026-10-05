@@ -7,6 +7,7 @@ Use the `Scheduled` and `Async` attributes to run detection periodically, preven
 
 ## Contents
 
+- [Execution paths](#execution-paths)
 - [Requirements](#requirements)
 - [Schedule detection](#schedule-detection)
 - [Write cron expressions](#write-cron-expressions)
@@ -19,6 +20,23 @@ Use the `Scheduled` and `Async` attributes to run detection periodically, preven
 - [Configure a shared cache](#configure-a-shared-cache)
 - [Operate the scheduler and workers](#operate-the-scheduler-and-workers)
 - [Troubleshoot scheduled detection](#troubleshoot-scheduled-detection)
+
+## Execution paths
+
+Detection reaches `detect()` through one of three paths:
+
+```text
+Direct
+application code ──────────────────────────► detect()
+
+Scheduled
+scheduler ──► overlap lock ──► detect()
+
+Scheduled + Async
+scheduler ──► overlap lock ──► unique job ──► worker ──► detect()
+```
+
+A direct call runs in the current process. Both scheduled paths are registered with Laravel's scheduler and run on one server per occurrence when every scheduler host shares a lock-capable cache. The overlap lock belongs to that scheduler occurrence: without `Async`, the occurrence calls `detect()` directly; with `Async`, it dispatches one job and returns. A unique job prevents another job for the same finding from being dispatched while the first is queued or running, and the queue worker is what calls `detect()`.
 
 ## Requirements
 

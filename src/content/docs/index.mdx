@@ -1,6 +1,21 @@
 ---
 title: Introduction
 description: Learn how Data Health detects, records, and resolves inconsistencies in Laravel application data.
+template: splash
+hero:
+  title: Data Health
+  tagline: Find inconsistencies in your Laravel application's data, verify them, and resolve them.
+  image:
+    file: ../../assets/data-health-logo-mark.svg
+    alt: Data Health logo
+  actions:
+    - text: Install Data Health
+      link: /start-here/installation/
+      icon: right-arrow
+    - text: Quick Start
+      link: /start-here/quick-start/
+      variant: minimal
+      icon: rocket
 ---
 
 Data Health is a Laravel package for finding inconsistencies in application data and turning them into records that can be reviewed, verified, and resolved.
@@ -20,19 +35,23 @@ Finding classes live in configured directories such as `app/DataHealth`. Data He
 
 ## The finding lifecycle
 
-A typical finding moves through the following lifecycle:
+A finding record moves between three statuses:
 
 ```text
-                         ignore
-                      ┌──────────► ignored
-                      │                │
-detect ──► active ────┤                │ reopen
-   ▲                  │                ▼
-   │                  └──────────► active
-   │             verify or resolve
-   │                       │
-   └────── re-detect ◄── resolved
+                    ignore            reopen
+                 ┌──────────► ignored ──┐
+                 │                      │
+                 ▼                      ▼
+detect ──────► active ◄─────────────────┘
+                 │
+                 │ successful verify or resolve
+                 ▼
+              resolved ── re-detect or reopen ──► active
 ```
+
+Detecting an active or ignored record again refreshes its timestamp and leaves its status unchanged. A failed verification or resolution also leaves the status unchanged.
+
+The operations in a typical lifecycle are:
 
 1. **Detect** — Application code scans for a known inconsistency and reports each affected model.
 2. **Record** — Data Health stores a finding record with a stable identity derived from the finding type, model, and context.

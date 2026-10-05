@@ -7,6 +7,13 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Data Health',
+			logo: {
+				light: './src/assets/data-health-logo-horizontal.svg',
+				dark: './src/assets/data-health-logo-horizontal-dark.svg',
+				alt: 'Data Health',
+				replacesTitle: true,
+			},
+			favicon: '/favicon.svg',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/data-health-php/data-health' }],
 			sidebar: [
 				{

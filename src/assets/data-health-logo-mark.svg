@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="16 8 280 280" role="img" aria-labelledby="title description">
+  <title id="title">Data Health</title>
+  <desc id="description">A database crossed by a health pulse.</desc>
+
+  <defs>
+    <linearGradient id="panel" x1="40" y1="32" x2="272" y2="288" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00A896"/>
+      <stop offset="1" stop-color="#028090"/>
+    </linearGradient>
+    <filter id="shadow" x="24" y="20" width="280" height="288" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#034F58" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <rect x="40" y="32" width="232" height="232" rx="54" fill="url(#panel)"/>
+  </g>
+  <g fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M91 104C91 88.536 120.101 76 156 76C191.899 76 221 88.536 221 104V180C221 195.464 191.899 208 156 208C120.101 208 91 195.464 91 180V104Z"/>
+    <path d="M91 104C91 119.464 120.101 132 156 132C191.899 132 221 119.464 221 104"/>
+    <path d="M91 142C91 157.464 120.101 170 156 170C191.899 170 221 157.464 221 142" opacity="0.72"/>
+  </g>
+  <path d="M68 156H104L119 127L139 184L158 144L172 156H244" fill="none" stroke="#F5828F" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="244" cy="156" r="8" fill="#F5828F"/>
+</svg>

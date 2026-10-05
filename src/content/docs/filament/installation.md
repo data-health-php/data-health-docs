@@ -73,12 +73,15 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->plugin(DataHealthPlugin::make());
+            ->plugin(DataHealthPlugin::make()->brandLogo());
     }
 }
 ```
 
-The plugin identifier is `data-health` and the plugin has no required constructor options.
+Calling `brandLogo()` uses the Data Health wordmark for this panel, including a
+dark-mode variant. Omit the call when the panel should keep the application's own
+branding. The plugin identifier is `data-health` and the plugin has no required
+constructor options.
 
 ## Register multiple panels
 
@@ -90,7 +93,7 @@ public function panel(Panel $panel): Panel
     return $panel
         ->id('operations')
         ->path('operations')
-        ->plugin(DataHealthPlugin::make());
+        ->plugin(DataHealthPlugin::make()->brandLogo());
 }
 ```
 
