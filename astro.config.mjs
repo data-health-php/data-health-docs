@@ -4,6 +4,8 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://data-health-php.github.io',
+	base: '/data-health-docs',
 	integrations: [
 		starlight({
 			title: 'Data Health',

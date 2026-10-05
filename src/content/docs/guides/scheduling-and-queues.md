@@ -59,7 +59,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 
 Scheduled execution runs `detect()` itself. Return an integer or `null`; a callable returned by `detect()` is not invoked as additional scheduled work.
 
-See [Detecting Problems](/guides/detecting-problems/) for query, result, and idempotency guidance before automating a finding.
+See [Detecting Problems](/data-health-docs/guides/detecting-problems/) for query, result, and idempotency guidance before automating a finding.
 
 ## Schedule detection
 
@@ -187,7 +187,7 @@ Run a worker that consumes the selected destination:
 php artisan queue:work redis --queue=data-health
 ```
 
-Long-running checks should use controlled batches rather than relying on a very large worker timeout; see [Large Datasets](/guides/large-datasets/).
+Long-running checks should use controlled batches rather than relying on a very large worker timeout; see [Large Datasets](/data-health-docs/guides/large-datasets/).
 
 ## Unique detection jobs
 
@@ -232,7 +232,7 @@ Useful operational signals include detection duration, findings reported, job fa
 
 If a finding does not run, check these items in order:
 
-1. **Discovery:** Confirm its path and namespace follow [Finding Discovery](/core-concepts/finding-discovery/).
+1. **Discovery:** Confirm its path and namespace follow [Finding Discovery](/data-health-docs/core-concepts/finding-discovery/).
 2. **Capability:** Confirm the class implements `CanDetect`.
 3. **Attribute:** Confirm `Scheduled` contains a valid cron expression.
 4. **Configuration:** Confirm `data-health.scheduler.enabled` is `true` in the running process.
@@ -245,4 +245,4 @@ If a finding does not run, check these items in order:
 11. **Shared cache:** Confirm every server uses the same lock-capable store.
 12. **Deployment:** Restart long-running scheduler and worker processes after changing findings.
 
-Continue with [Metadata and Worklists](/guides/metadata-and-worklists/) to make automated findings easier to triage, or [Finding Types and Detection](/filament/finding-types-and-detection/) to run detection manually.
+Continue with [Metadata and Worklists](/data-health-docs/guides/metadata-and-worklists/) to make automated findings easier to triage, or [Finding Types and Detection](/data-health-docs/filament/finding-types-and-detection/) to run detection manually.

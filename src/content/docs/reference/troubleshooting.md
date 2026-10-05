@@ -48,7 +48,7 @@ php artisan tinker
 config('data-health.directories');
 ```
 
-See [Finding Discovery](/core-concepts/finding-discovery/) for custom paths and namespaces.
+See [Finding Discovery](/data-health-docs/core-concepts/finding-discovery/) for custom paths and namespaces.
 
 ## A finding key cannot be resolved
 
@@ -84,7 +84,7 @@ Associative keys are recursively sorted before hashing, so their insertion order
 
 Keep identity context deterministic. Sort lists when their order has no meaning, normalize dates and numeric values, and leave volatile display-only values out of context. Changing the structure of `buildContext()` affects future identity matching but does not rewrite stored hashes.
 
-See [Context](/guides/context/) for stable and unstable examples.
+See [Context](/data-health-docs/guides/context/) for stable and unstable examples.
 
 ## Scheduled detection does not run
 
@@ -196,7 +196,7 @@ If findings must survive soft deletion as audit records, leave automatic cleanup
 
 An empty collection at the end of a pass is valid and resets the cursor to `0`; the following call starts again. Changing query filters between batches can cause records to enter or leave the remaining ID range, so use a stable scope where complete coverage matters.
 
-When each selected model must be checked against a third-party API, use a small cursor batch to limit the number of remote calls in each run. If the API itself is the paginated data source and there is no local Eloquent candidate query, persist the API's page or continuation token in application storage instead. See [Large Datasets](/guides/large-datasets/) for the local-model pattern.
+When each selected model must be checked against a third-party API, use a small cursor batch to limit the number of remote calls in each run. If the API itself is the paginated data source and there is no local Eloquent candidate query, persist the API's page or continuation token in application storage instead. See [Large Datasets](/data-health-docs/guides/large-datasets/) for the local-model pattern.
 
 ## Filament actions are missing
 
@@ -211,7 +211,7 @@ Use the action's corresponding capability as the first check:
 
 Confirm that `DataHealthPlugin::make()` is registered on the current panel. For standalone components, confirm that the component is rendered inside a working Filament and Livewire installation.
 
-The package does not provide application-specific authorization. If actions must be restricted, apply the panel, resource, middleware, and standalone-component authorization described in [Authorization](/filament/authorization/).
+The package does not provide application-specific authorization. If actions must be restricted, apply the panel, resource, middleware, and standalone-component authorization described in [Authorization](/data-health-docs/filament/authorization/).
 
 ## Affected-model links are missing
 
@@ -222,7 +222,7 @@ A model label remains unlinked when no usable destination can be produced. Check
 3. the custom URL resolver returns a non-empty URL; or
 4. inside a panel, the model has a registered Filament resource with a permitted `view` page.
 
-The panel-resource fallback is unavailable to standalone components outside a panel. Configure a named route or custom resolver for those contexts. See [Configuration and Model Links](/filament/configuration-and-model-links/) for examples.
+The panel-resource fallback is unavailable to standalone components outside a panel. Configure a named route or custom resolver for those contexts. See [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/) for examples.
 
 ## Assignment is missing or incomplete
 

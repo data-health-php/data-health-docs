@@ -153,4 +153,4 @@ Authorization tests should cover both page access and Livewire actions:
 
 Include at least one test around resolution because it can modify application data, and one around manual detection because it executes arbitrary finding queries from a web request.
 
-Return to [Overview](/filament/overview/) for the complete feature map, or use [Configuration and Model Links](/filament/configuration-and-model-links/) to configure the protected interface.
+Return to [Overview](/data-health-docs/filament/overview/) for the complete feature map, or use [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/) to configure the protected interface.

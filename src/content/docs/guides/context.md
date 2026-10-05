@@ -283,4 +283,4 @@ Before changing context for a finding already used in production:
 
 For a fundamentally different definition of an occurrence, using a new finding key can make the behavior change explicit and preserve the meaning of historical records.
 
-Continue with [Large Datasets](/guides/large-datasets/) when detection should process a limited number of models per run, or [Findings and Records](/core-concepts/findings-and-records/) for the complete identity and lifecycle model.
+Continue with [Large Datasets](/data-health-docs/guides/large-datasets/) when detection should process a limited number of models per run, or [Findings and Records](/data-health-docs/core-concepts/findings-and-records/) for the complete identity and lifecycle model.

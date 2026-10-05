@@ -30,7 +30,7 @@ status:  pending
 The finding will consider an order unhealthy when `paid_at` is not null and `status` is `pending`.
 
 :::note[Adapt this example]
-This is an adaptation recipe for an existing Laravel application, not scaffolding for a blank project. It assumes you have completed [Installation](/start-here/installation/), run the Data Health migrations, and have an `Order` model with the fields above. Replace the model, query, and valid status values with a real inconsistency from your application.
+This is an adaptation recipe for an existing Laravel application, not scaffolding for a blank project. It assumes you have completed [Installation](/data-health-docs/start-here/installation/), run the Data Health migrations, and have an `Order` model with the fields above. Replace the model, query, and valid status values with a real inconsistency from your application.
 :::
 
 ## Create the finding
@@ -118,7 +118,7 @@ This example does not need additional context because there can be only one inst
 Returning the number of detected orders makes the method useful from commands, jobs, tests, and the Filament manual-detection interface.
 
 :::tip
-Defining a finding does not run detection automatically. Call `detect()` yourself or configure [Scheduling and Queues](/guides/scheduling-and-queues/) when detection should run periodically.
+Defining a finding does not run detection automatically. Call `detect()` yourself or configure [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) when detection should run periodically.
 :::
 
 ## Create an inconsistent order
@@ -250,7 +250,7 @@ If the same order becomes inconsistent later, detection reactivates its existing
 
 You now have a complete finding that can be detected, verified, and resolved. Continue with:
 
-- [Findings and Records](/core-concepts/findings-and-records/) for a deeper explanation of identity, context, and statuses;
-- [Detecting Problems](/guides/detecting-problems/) for detection patterns and testing guidance;
-- [Scheduling and Queues](/guides/scheduling-and-queues/) to run detection automatically; or
-- [Filament Installation](/filament/installation/) to manage findings through a Filament panel.
+- [Findings and Records](/data-health-docs/core-concepts/findings-and-records/) for a deeper explanation of identity, context, and statuses;
+- [Detecting Problems](/data-health-docs/guides/detecting-problems/) for detection patterns and testing guidance;
+- [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) to run detection automatically; or
+- [Filament Installation](/data-health-docs/filament/installation/) to manage findings through a Filament panel.

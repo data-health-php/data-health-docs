@@ -33,7 +33,7 @@ For UUID or string model keys, adapt the published `model_type` / `model_id` and
 
 The built-in cursor is specifically for Eloquent queries with a numeric `id`. A custom primary key or a remote paginated source needs an application-owned cursor strategy; the rest of the finding lifecycle remains usable.
 
-See [Database Schema](/reference/database-schema/#customize-the-schema) and [Large Datasets](/guides/large-datasets/) before installing into such an application.
+See [Database Schema](/data-health-docs/reference/database-schema/#customize-the-schema) and [Large Datasets](/data-health-docs/guides/large-datasets/) before installing into such an application.
 
 ## Install the core package
 
@@ -76,9 +76,9 @@ The published `config/data-health.php` starts with these behaviors:
 - scheduled detections are enabled; and
 - automatic cleanup for every deleted Eloquent model is disabled.
 
-The discovery directory does not need to exist before installation. You can create it when you define your first finding in the [Quick Start](/start-here/quick-start/).
+The discovery directory does not need to exist before installation. You can create it when you define your first finding in the [Quick Start](/data-health-docs/start-here/quick-start/).
 
-See [Configuration](/reference/configuration/) for every available option and environment variable.
+See [Configuration](/data-health-docs/reference/configuration/) for every available option and environment variable.
 
 ## Choose an interface
 
@@ -92,4 +92,4 @@ composer require data-health/data-health-filament
 
 It adds finding resources, actions, statistics, manual detection, and standalone Livewire components without changing the finding classes used by the core package.
 
-Continue with [Filament Installation](/filament/installation/) to register it with a panel, or skip it and proceed directly to the [Quick Start](/start-here/quick-start/).
+Continue with [Filament Installation](/data-health-docs/filament/installation/) to register it with a panel, or skip it and proceed directly to the [Quick Start](/data-health-docs/start-here/quick-start/).

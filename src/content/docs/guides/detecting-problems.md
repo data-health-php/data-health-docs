@@ -66,7 +66,7 @@ Implementing `CanDetect` also makes the finding eligible for scheduled detection
 
 Filter unhealthy records in the database whenever the rule can be expressed as a query. This avoids loading healthy models only to discard them in PHP.
 
-The finding from the [Quick Start](/start-here/quick-start/) detects paid orders that are still pending:
+The finding from the [Quick Start](/data-health-docs/start-here/quick-start/) detects paid orders that are still pending:
 
 ```php
 use App\Models\Order;
@@ -96,7 +96,7 @@ public static function detect(): int
 }
 ```
 
-`eachById()` avoids loading the entire result set into memory. For checks that should intentionally inspect only a limited portion of a table per run, use the persistent cursor described in [Large Datasets](/guides/large-datasets/).
+`eachById()` avoids loading the entire result set into memory. For checks that should intentionally inspect only a limited portion of a table per run, use the persistent cursor described in [Large Datasets](/data-health-docs/guides/large-datasets/).
 
 :::tip
 Eager-load relationships used by the detection rule to avoid an N+1 query for every candidate model.
@@ -142,7 +142,7 @@ public function buildContext(): array
 }
 ```
 
-Use stable context that identifies the occurrence rather than values that change on every scan. See [Context](/guides/context/) for hashing, identity, and design guidance.
+Use stable context that identifies the occurrence rather than values that change on every scan. See [Context](/data-health-docs/guides/context/) for hashing, identity, and design guidance.
 
 ## Return a useful result
 
@@ -212,7 +212,7 @@ A detector reports the problems it sees; it does not automatically resolve activ
 
 Absence can be ambiguous: the model may have been filtered out, an external service may have been unavailable, or a batched scan may not have reached that model yet. Automatically resolving every unseen record would therefore produce false resolutions.
 
-Use `CanVerify` when an existing finding can determine that its underlying problem no longer applies. See [Verifying Findings](/guides/verifying-findings/) for verification workflows.
+Use `CanVerify` when an existing finding can determine that its underlying problem no longer applies. See [Verifying Findings](/data-health-docs/guides/verifying-findings/) for verification workflows.
 
 ## Run detection manually
 
@@ -224,7 +224,7 @@ use App\DataHealth\PaidOrderMarkedPending;
 $detected = PaidOrderMarkedPending::detect();
 ```
 
-For periodic execution, add the `Scheduled` attribute as described in [Scheduling and Queues](/guides/scheduling-and-queues/). Data Health Filament can also expose detectable findings as manual actions; see [Finding Types and Detection](/filament/finding-types-and-detection/).
+For periodic execution, add the `Scheduled` attribute as described in [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/). Data Health Filament can also expose detectable findings as manual actions; see [Finding Types and Detection](/data-health-docs/filament/finding-types-and-detection/).
 
 ## Test detection behavior
 
@@ -258,4 +258,4 @@ it('detects paid orders that are still pending', function () {
 
 Run detection twice in another test and assert that only one record exists for the same identity. When context is involved, test that equivalent context reuses a record and genuinely different context creates another one.
 
-Continue with [Context](/guides/context/) when a model can have multiple occurrences of the same problem, or [Large Datasets](/guides/large-datasets/) when one run should process only a controlled batch.
+Continue with [Context](/data-health-docs/guides/context/) when a model can have multiple occurrences of the same problem, or [Large Datasets](/data-health-docs/guides/large-datasets/) when one run should process only a controlled batch.

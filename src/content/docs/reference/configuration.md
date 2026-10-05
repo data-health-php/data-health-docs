@@ -72,7 +72,7 @@ Each entry in `directories` maps a path relative to the application base path to
 
 The namespace may include or omit its trailing backslash because Data Health normalizes it before appending the relative class name. The namespace below it must mirror the directory structure, and only concrete subclasses of `DataHealth\Finding` are registered.
 
-See [Finding Discovery](/core-concepts/finding-discovery/) for the complete discovery rules.
+See [Finding Discovery](/data-health-docs/core-concepts/finding-discovery/) for the complete discovery rules.
 
 ## Scheduler
 
@@ -104,7 +104,7 @@ Enable it to delete a model's finding records when that model is deleted:
 DATA_HEALTH_AUTO_DELETE_ENABLED=true
 ```
 
-The setting is global. Keep it disabled if findings must remain as an audit trail, and remember that restoring a soft-deleted model does not recreate deleted findings. See [Model Cleanup](/guides/model-cleanup/) for lifecycle details.
+The setting is global. Keep it disabled if findings must remain as an audit trail, and remember that restoring a soft-deleted model does not recreate deleted findings. See [Model Cleanup](/data-health-docs/guides/model-cleanup/) for lifecycle details.
 
 ## Read configuration at runtime
 
@@ -162,4 +162,4 @@ php artisan vendor:publish --tag=data-health-filament-config
 | `data-health-filament.model_view_routes` | `[]` | Maps affected model classes or morph types to named routes. |
 | `data-health-filament.model_view_url_resolver` | `null` | Invokable class that returns a model URL or `null`. |
 
-These values apply to all panels and standalone package components. See [Configuration and Model Links](/filament/configuration-and-model-links/) for examples and URL-resolution precedence.
+These values apply to all panels and standalone package components. See [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/) for examples and URL-resolution precedence.

@@ -82,7 +82,7 @@ Successful verification and resolution change a record to `resolved`. Detecting 
 
 `assignee_type` and `assignee_id` form the optional `assignee()` morph-to relationship. The core package stores the columns but does not decide which models can be assigned; the Filament integration exposes assignment after `assignee_types` is configured.
 
-The migrations do not add foreign keys for either polymorphic relationship. Deleting an affected model therefore does not cause database-level cascading. Use [Model Cleanup](/guides/model-cleanup/) when application-level cleanup is wanted.
+The migrations do not add foreign keys for either polymorphic relationship. Deleting an affected model therefore does not cause database-level cascading. Use [Model Cleanup](/data-health-docs/guides/model-cleanup/) when application-level cleanup is wanted.
 
 Changing a morph map after records have been stored may make existing relationships impossible to resolve. Migrate stored morph types when introducing or renaming aliases.
 
@@ -96,7 +96,7 @@ The `context` JSON contains the array returned by the finding's `buildContext()`
 
 Consequently, `['currency' => 'EUR', 'amount' => 10]` has the same identity as the same associative values in the opposite key order, while differently ordered lists represent different identities.
 
-Keep context JSON-serializable, deterministic, and limited to values needed to distinguish or explain the problem. See [Context](/guides/context/) for design guidance.
+Keep context JSON-serializable, deterministic, and limited to values needed to distinguish or explain the problem. See [Context](/data-health-docs/guides/context/) for design guidance.
 
 ## Operational metadata
 

@@ -24,7 +24,7 @@ Detection searches for current problems and creates or refreshes finding records
 
 For example, detection may report an order because it has a payment timestamp but is still pending. After another process updates the order, verification can confirm that the inconsistency is gone and mark the finding resolved.
 
-Verification should normally be read-only. It observes the affected model and any related systems but does not correct them. Use [Resolving Findings](/guides/resolving-findings/) when the operation should change application data.
+Verification should normally be read-only. It observes the affected model and any related systems but does not correct them. Use [Resolving Findings](/data-health-docs/guides/resolving-findings/) when the operation should change application data.
 
 | Operation | Starts with | Purpose |
 | --- | --- | --- |
@@ -116,7 +116,7 @@ public function verify(): bool
 
 This finding was created because the document did not exist, so finding it now means the problem has been fixed.
 
-Persist every stable value needed to identify and recheck an occurrence. See [Context](/guides/context/) for context design and identity rules.
+Persist every stable value needed to identify and recheck an occurrence. See [Context](/data-health-docs/guides/context/) for context design and identity rules.
 
 ## Return a container-invoked callback
 
@@ -283,4 +283,4 @@ it('resolves the finding after the order is corrected', function () {
 
 For callback or verifier implementations, also test container dependency resolution and exception behavior. Mock remote services at their application boundary rather than testing against a live provider.
 
-Continue with [Resolving Findings](/guides/resolving-findings/) to correct problems automatically, or [Managing Findings](/filament/managing-findings/) to expose verification to operators.
+Continue with [Resolving Findings](/data-health-docs/guides/resolving-findings/) to correct problems automatically, or [Managing Findings](/data-health-docs/filament/managing-findings/) to expose verification to operators.

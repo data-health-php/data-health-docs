@@ -193,7 +193,7 @@ A final `true` result marks the record `resolved`; `false` leaves its status unc
 CheckCursor::next(Builder $query, string $check, int $limit): Collection;
 ```
 
-Pass a query ordered by its numeric primary key, the finding class as `$check`, and a positive batch size. See [Large Datasets](/guides/large-datasets/) for behavior and third-party API patterns.
+Pass a query ordered by its numeric primary key, the finding class as `$check`, and a positive batch size. See [Large Datasets](/data-health-docs/guides/large-datasets/) for behavior and third-party API patterns.
 
 ## Finding record operations
 

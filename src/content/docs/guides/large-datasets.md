@@ -307,7 +307,7 @@ class ExternalSubscriptionStatusMismatch extends Finding implements CanDetect
 }
 ```
 
-See [Scheduling and Queues](/guides/scheduling-and-queues/) for worker setup, uniqueness, overlap locks, and multi-server cache requirements.
+See [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) for worker setup, uniqueness, overlap locks, and multi-server cache requirements.
 
 ## Monitor scan progress
 
@@ -324,4 +324,4 @@ Useful operational measurements include:
 
 Emit these measurements through your application's existing logging or telemetry system. Alert on stalled or repeatedly failing checks rather than on a particular cursor ID.
 
-Continue with [Scheduling and Queues](/guides/scheduling-and-queues/) to automate the scan, or [Context](/guides/context/) to design stable identities for problems found in external data.
+Continue with [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) to automate the scan, or [Context](/data-health-docs/guides/context/) to design stable identities for problems found in external data.

@@ -27,7 +27,7 @@ Before installing the Filament integration, the application should have:
 - Filament 5; and
 - the Data Health core package with its migrations published and run.
 
-Follow [Data Health Installation](/start-here/installation/) first when the core package is not yet configured.
+Follow [Data Health Installation](/data-health-docs/start-here/installation/) first when the core package is not yet configured.
 
 ## Install the package
 
@@ -119,7 +119,7 @@ The defaults work without publishing. Publish the configuration when you need to
 php artisan vendor:publish --tag=data-health-filament-config
 ```
 
-This creates `config/data-health-filament.php`. See [Configuration and Model Links](/filament/configuration-and-model-links/) for every option.
+This creates `config/data-health-filament.php`. See [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/) for every option.
 
 ## Confirm the installation
 
@@ -138,10 +138,10 @@ The package does not perform authorization checks. The built-in resource explici
 
 Configure panel authentication and access rules before deployment. For standalone components, protect the application routes that render them.
 
-Read [Authorization](/filament/authorization/) for the complete boundary and fine-grained-access options.
+Read [Authorization](/data-health-docs/filament/authorization/) for the complete boundary and fine-grained-access options.
 
 ## Next steps
 
-- Use [Managing Findings](/filament/managing-findings/) to understand filters and actions.
-- Configure model destinations and assignees in [Configuration and Model Links](/filament/configuration-and-model-links/).
-- Use [Standalone Components](/filament/standalone-components/) when no panel is required.
+- Use [Managing Findings](/data-health-docs/filament/managing-findings/) to understand filters and actions.
+- Configure model destinations and assignees in [Configuration and Model Links](/data-health-docs/filament/configuration-and-model-links/).
+- Use [Standalone Components](/data-health-docs/filament/standalone-components/) when no panel is required.
