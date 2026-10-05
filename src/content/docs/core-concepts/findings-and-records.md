@@ -142,10 +142,16 @@ Deleting an affected model can leave a polymorphic record without its model unle
 Data Health identifies a finding occurrence with four values:
 
 ```text
-finding key + model type + model ID + context hash
+finding key ──┐
+              │
+model type ───┤
+              │
+model ID ─────┼──► one finding record
+              │
+context hash ─┘
 ```
 
-The database enforces a unique constraint across those columns. Reporting the same identity repeatedly returns the existing record instead of inserting a duplicate.
+The database enforces a unique constraint across those columns. Reporting the same four values refreshes the existing record. Changing the key, model type, model ID, or context hash creates a different record.
 
 By default, a finding key is the class basename:
 

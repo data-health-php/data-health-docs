@@ -238,14 +238,18 @@ Treat a failed or incomplete API response as an unknown check, not proof of a da
 
 ## Complete and restart a scan
 
-Suppose matching model IDs are `1` through `5` and the limit is `2`:
+Suppose matching model IDs are `1` through `5` and the limit is `2`. Each run selects the next IDs, and the run that reaches ID `5` resets the stored position to `0`:
 
-| Invocation | Returned IDs | Stored position after selection |
-| --- | --- | --- |
-| First | `1, 2` | `2` |
-| Second | `3, 4` | `4` |
-| Third | `5` | `0` |
-| Fourth | `1, 2` | `2` |
+```text
+IDs:  1  2  3  4  5
+
+1st  [1  2]           stored position 2
+2nd        [3  4]     stored position 4
+3rd              [5]  stored position 0
+4th  [1  2]           stored position 2
+```
+
+The position changes when the batch is selected, before those models are checked. If processing fails midway, the next run continues after the stored position rather than repeating the batch. See [Handle failures and retries](#handle-failures-and-retries).
 
 The final non-empty batch resets the cursor immediately because it contains the greatest matching ID. There is no required empty invocation between complete passes.
 
