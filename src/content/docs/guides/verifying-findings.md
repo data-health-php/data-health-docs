@@ -13,6 +13,7 @@ Verification rechecks an existing finding against current application data and r
 - [Access the model and context](#access-the-model-and-context)
 - [Return a container-invoked callback](#return-a-container-invoked-callback)
 - [Use a dedicated verifier class](#use-a-dedicated-verifier-class)
+- [Automatically verify new records](#automatically-verify-new-records)
 - [Status changes](#status-changes)
 - [Handle unknown and failed checks](#handle-unknown-and-failed-checks)
 - [Describe verification](#describe-verification)
@@ -195,6 +196,45 @@ public function verify(): string
 ```
 
 Data Health resolves the verifier from Laravel's container and passes it the complete finding record. Returning a class that does not implement `Verifier` causes verification to fail with a runtime exception.
+
+## Automatically verify new records
+
+Add `AutoVerify` when every newly created record should be checked automatically through Laravel's queue:
+
+```php
+use DataHealth\Attributes\AutoVerify;
+use DataHealth\Contracts\CanVerify;
+use DataHealth\Finding;
+
+#[AutoVerify]
+class PaidOrderMarkedPending extends Finding implements CanVerify
+{
+    public function verify(): bool
+    {
+        $order = $this->model->refresh();
+
+        return $order->paid_at === null || $order->status !== 'pending';
+    }
+}
+```
+
+The verification job is dispatched after the database transaction that created the finding record commits. With the default `sync` queue connection, it runs immediately after creation. With an asynchronous queue connection, a worker must be running.
+
+Pass a number of minutes to allow a short consistency window before verification:
+
+```php
+#[AutoVerify(2)]
+class PaidOrderMarkedPending extends Finding implements CanVerify
+{
+    // ...
+}
+```
+
+This dispatches the job with a two-minute delay. The queue backend and worker must support delayed jobs.
+
+Automatic verification is scheduled only when `found()` creates a record. Rediscovering an existing active, ignored, or resolved record does not schedule another job. When a delayed job runs, it verifies the record only if the record is still active, so an operator action taken during the delay is preserved.
+
+`AutoVerify` does not replace `CanVerify`: applying the attribute to a finding that does not implement the contract causes the queued job to fail. Exceptions from `verify()` also remain queue failures and follow the application's normal retry and failure handling.
 
 ## Status changes
 

@@ -259,7 +259,7 @@ This reconstruction is why stable keys, discoverable finding classes, accessible
 
 ## The complete lifecycle
 
-When a problem is reported for the first time, Data Health creates an active record, stores the finding metadata and context, and sets `last_detected_at`. A finding marked with `AutoResolve` immediately attempts resolution after creation.
+When a problem is reported for the first time, Data Health creates an active record, stores the finding metadata and context, and sets `last_detected_at`. A finding marked with `AutoResolve` immediately attempts resolution after creation. A finding marked with `AutoVerify` queues verification after the transaction commits, either immediately or after its configured delay.
 
 Subsequent events behave as follows:
 

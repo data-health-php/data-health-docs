@@ -25,6 +25,7 @@ namespace App\DataHealth;
 use App\Models\Order;
 use DataHealth\Attributes\Async;
 use DataHealth\Attributes\AutoResolve;
+use DataHealth\Attributes\AutoVerify;
 use DataHealth\Attributes\Description;
 use DataHealth\Attributes\Key;
 use DataHealth\Attributes\Scheduled;
@@ -42,7 +43,7 @@ use DataHealth\Finding;
 #[Worklist('billing-operations')]
 #[Scheduled('*/15 * * * *')]
 #[Async(queue: 'data-health', connection: 'redis')]
-#[AutoResolve]
+#[AutoVerify(2)]
 class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, CanResolve
 {
     public static function detect(): int
@@ -78,7 +79,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, Ca
 }
 ```
 
-Use only the attributes and contracts the finding needs. In particular, `AutoResolve` causes resolution immediately after a new record is created, so it should be reserved for safe, idempotent fixes.
+Use only the attributes and contracts the finding needs. `AutoResolve` attempts a fix immediately after creation, while `AutoVerify` queues a read-only check immediately or after a short delay.
 
 ## Finding base class
 
@@ -95,6 +96,7 @@ Every finding extends `DataHealth\Finding`.
 | Description | `static getDescription(): ?string` | Returns the class-level description or `null`. |
 | Method description | `static getMethodDescription(string $method): ?string` | Returns a `Description` attached to the named method. |
 | Auto-resolution | `isAutomaticallyResolved(): bool` | Reports whether the class has `AutoResolve`. |
+| Auto-verification delay | `getAutoVerifyDelay(): ?int` | Returns the `AutoVerify` delay in minutes, or `null` when automatic verification is disabled. |
 
 `found()` accepts the finding constructor arguments. The default constructor therefore supports `MyFinding::found($model)` and `MyFinding::found($model, $context)`. Override the constructor only when the finding genuinely needs another input shape.
 
@@ -111,6 +113,7 @@ All attributes are in `DataHealth\Attributes`.
 | `Scheduled` | Class: `new Scheduled(string $expression)` | Registers a `CanDetect` finding with Laravel's scheduler using a five-field cron expression. |
 | `Async` | Class: `new Async(?string $queue = null, ?string $connection = null)` | Dispatches scheduled detection to a unique queued job, optionally selecting its queue and connection. |
 | `AutoResolve` | Class, no arguments | Calls the finding's resolver immediately after a new record is created. |
+| `AutoVerify` | Class: `new AutoVerify(int $delay = 0)` | Queues verification after a new record is created, optionally delayed by a non-negative number of minutes. |
 
 Changing `Urgency` or `Worklist` does not rewrite existing records; those values are copied when a record is first created. Descriptions are read from code at runtime and are not stored in the findings table.
 
@@ -156,6 +159,8 @@ public function verify(FindingRecord $record): bool;
 
 When the final result is `true`, Data Health changes the record status to `resolved`. A `false` result leaves the current status unchanged.
 
+`AutoVerify` dispatches this verification after a new record's transaction commits. It runs only for newly created records and only while the record remains active. Use `#[AutoVerify(2)]` to delay the queued check by two minutes; asynchronous and delayed execution requires a configured queue worker.
+
 ## Resolution contracts
 
 Implement `DataHealth\Contracts\CanResolve` to offer an application-defined fix:
@@ -197,7 +202,7 @@ Pass a query ordered by its numeric primary key, the finding class as `$check`, 
 
 ## Finding record operations
 
-Verification and automatic resolution should go through the `DataHealth` facade so the package executes the finding behavior before changing status. The remaining lifecycle operations are direct changes to the public `FindingRecord` model:
+Manual verification and resolution should go through the `DataHealth` facade so the package executes the finding behavior before changing status. The remaining lifecycle operations are direct changes to the public `FindingRecord` model:
 
 ```php
 use DataHealth\Enums\RecordStatus;
