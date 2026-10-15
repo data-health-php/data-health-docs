@@ -39,6 +39,10 @@ This is a good fit for recurring health checks where timely coverage matters but
 Cursor-based checks provide rotating coverage, not queue-style exactly-once delivery. Use queued jobs or a dedicated workflow when every selected model must be acknowledged individually before progress advances.
 :::
 
+:::caution[Numeric IDs only]
+`CheckCursor` advances through an Eloquent query using a numeric `id` column. Models with UUID, ULID, string, or custom primary keys need an application-owned cursor strategy. A remote paginated source likewise needs to persist its own page or continuation token; the rest of the finding lifecycle remains usable without `CheckCursor`.
+:::
+
 ## How persistent cursors work
 
 Each cursor stores a key and the last selected model ID in `data_health_cursors`. On every call, Data Health:
@@ -91,9 +95,7 @@ class CustomerProfileIncomplete extends Finding implements CanDetect
 }
 ```
 
-Each call checks at most 500 active customers. Repeated scheduled calls continue after the previously selected ID until the scan wraps.
-
-The query must target an Eloquent model with a numeric `id` column because cursor progression uses `max('id')`, `where('id', '>', ...)`, and ascending ID order.
+Each call checks at most 500 active customers. Repeated scheduled calls continue after the previously selected ID until the scan wraps. Cursor progression uses `max('id')`, `where('id', '>', ...)`, and ascending ID order.
 
 ## Choose a cursor key
 

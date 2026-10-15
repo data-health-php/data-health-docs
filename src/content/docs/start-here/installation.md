@@ -8,7 +8,6 @@ Data Health installs like a conventional Laravel package and is discovered autom
 ## Contents
 
 - [Requirements](#requirements)
-- [Compatibility and limitations](#compatibility-and-limitations)
 - [Install the core package](#install-the-core-package)
 - [Publish the package resources](#publish-the-package-resources)
 - [Default configuration](#default-configuration)
@@ -22,18 +21,6 @@ Before installing Data Health, make sure your application uses:
 - Laravel 12 or 13.
 
 The optional Filament interface additionally requires Filament 5.
-
-## Compatibility and limitations
-
-:::caution
-The published migrations use unsigned big-integer morph IDs, and `CheckCursor` advances through a numeric `id` column. Review these assumptions before migrating an application whose affected models use UUID, ULID, string, or custom primary keys.
-:::
-
-For UUID or string model keys, adapt the published `model_type` / `model_id` and optional assignee columns to compatible Laravel morph column types before running the migrations. Applications that already ran the migrations should make the change in a new migration.
-
-The built-in cursor is specifically for Eloquent queries with a numeric `id`. A custom primary key or a remote paginated source needs an application-owned cursor strategy; the rest of the finding lifecycle remains usable.
-
-See [Database Schema](/data-health-docs/reference/database-schema/#customize-the-schema) and [Large Datasets](/data-health-docs/guides/large-datasets/) before installing into such an application.
 
 ## Install the core package
 
@@ -67,6 +54,12 @@ The migrations create the tables used for finding records and detection cursors.
 ```bash
 php artisan migrate
 ```
+
+:::note[Model key compatibility]
+The published migrations use unsigned big-integer morph IDs. If affected models use UUID, ULID, string, or custom primary keys, adapt the published `model_type` / `model_id` and optional assignee columns to compatible Laravel morph column types before running the migrations. If the migrations have already run, make the change in a new application migration instead of editing migration history.
+
+See [Customize the schema](/data-health-docs/reference/database-schema/#customize-the-schema) for details.
+:::
 
 ## Default configuration
 
