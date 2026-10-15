@@ -29,10 +29,6 @@ status:  pending
 
 The finding will consider an order unhealthy when `paid_at` is not null and `status` is `pending`.
 
-:::note[Adapt this example]
-This is an adaptation recipe for an existing Laravel application, not scaffolding for a blank project. It assumes you have completed [Installation](/data-health-docs/start-here/installation/), run the Data Health migrations, and have an `Order` model with the fields above. Replace the model, query, and valid status values with a real inconsistency from your application.
-:::
-
 ## Create the finding
 
 Create `app/DataHealth/PaidOrderMarkedPending.php`:
@@ -46,30 +42,24 @@ namespace App\DataHealth;
 
 use App\Models\Order;
 use DataHealth\Attributes\Description;
-use DataHealth\Attributes\Key;
 use DataHealth\Contracts\CanDetect;
 use DataHealth\Contracts\CanResolve;
 use DataHealth\Contracts\CanVerify;
 use DataHealth\Finding;
 
-#[Key('paid-order-marked-pending')]
 #[Description('A paid order is still marked as pending.')]
 class PaidOrderMarkedPending extends Finding implements CanDetect, CanResolve, CanVerify
 {
     public static function detect(): int
     {
-        $detected = 0;
-
-        Order::query()
+        return Order::query()
             ->whereNotNull('paid_at')
             ->where('status', 'pending')
-            ->eachById(function (Order $order) use (&$detected): void {
+            ->get()
+            ->each(function (Order $order): void {
                 self::found($order);
-
-                $detected++;
-            });
-
-        return $detected;
+            })
+            ->count();
     }
 
     public function verify(): bool
@@ -96,7 +86,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect, CanResolve, C
 }
 ```
 
-The `Key` attribute gives the finding a stable database identity even if the PHP class is renamed later, while `Description` provides a human-readable explanation for interfaces such as Data Health Filament.
+The `Description` attribute provides a human-readable explanation for interfaces such as Data Health Filament.
 
 The three contracts enable different parts of the lifecycle:
 
@@ -108,10 +98,10 @@ The three contracts enable different parts of the lifecycle:
 
 The `detect()` method queries only orders matching the unhealthy state and calls `found()` for each one. Data Health then creates a finding record identified by:
 
-- the stable finding key;
+- the finding key (`PaidOrderMarkedPending`, derived from the class name by default);
 - the order's morph type;
 - the order's primary key; and
-- the finding's context.
+- the finding's [context](/data-health-docs/guides/context/).
 
 This example does not need additional context because there can be only one instance of this problem per order. Calling `found()` repeatedly for the same order therefore refreshes the existing record instead of creating duplicates.
 
