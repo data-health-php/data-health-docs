@@ -82,7 +82,7 @@ Confirm that `data_health_findings_identity_unique` exists. Do not remove the un
 
 Associative keys are recursively sorted before hashing, so their insertion order does not matter. List order remains significant, and every value contributes to the hash.
 
-Keep identity context deterministic. Sort lists when their order has no meaning, normalize dates and numeric values, and leave volatile display-only values out of context. Changing the structure of `buildContext()` affects future identity matching but does not rewrite stored hashes.
+Keep identity context deterministic. Sort lists when their order has no meaning, normalize dates and numeric values, and leave volatile display-only values out of context. Changing the context passed to `found()` affects future identity matching but does not rewrite stored hashes.
 
 See [Context](/data-health-docs/guides/context/) for stable and unstable examples.
 

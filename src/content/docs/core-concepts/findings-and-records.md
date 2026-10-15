@@ -178,20 +178,7 @@ The key is also how the registry reconstructs the correct PHP class from a store
 
 Context describes the particular occurrence of a problem. It is useful when the same finding type can occur more than once for the same model.
 
-For example, a customer may be missing several different required documents. The document type can distinguish each occurrence:
-
-```php
-class MissingRequiredDocument extends Finding
-{
-    /** @return array<string, mixed> */
-    public function buildContext(): array
-    {
-        return $this->context;
-    }
-}
-```
-
-Report one occurrence for each missing document:
+For example, a customer may be missing several different required documents. Report the document type as context to distinguish each occurrence:
 
 ```php
 MissingRequiredDocument::found($customer, [
@@ -205,9 +192,7 @@ MissingRequiredDocument::found($customer, [
 
 These calls create separate records because their context hashes differ.
 
-:::caution
-The base `buildContext()` method returns an empty array. Override it when constructor context should be persisted and participate in finding identity.
-:::
+Data Health stores constructor context directly and makes it available through the finding's readonly `context` property when reconstructing the finding.
 
 Before hashing context, Data Health sorts associative array keys recursively. The following values therefore represent the same identity:
 

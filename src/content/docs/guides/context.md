@@ -8,8 +8,7 @@ Use finding context to persist the details of a problem and give each distinct o
 ## Contents
 
 - [When a finding needs context](#when-a-finding-needs-context)
-- [Constructor and persisted context](#constructor-and-persisted-context)
-- [Build persisted context](#build-persisted-context)
+- [Pass and persist context](#pass-and-persist-context)
 - [Choose stable values](#choose-stable-values)
 - [How context affects identity](#how-context-affects-identity)
 - [Deterministic context hashing](#deterministic-context-hashing)
@@ -42,7 +41,7 @@ The two context values create separate finding records that can be reviewed and 
 
 Context can also retain a stable reference needed to explain or act on an occurrence, such as a conflicting record ID, an external object ID, or a rule code.
 
-## Constructor and persisted context
+## Pass and persist context
 
 The base `Finding` constructor accepts an Eloquent model and an optional context array:
 
@@ -67,30 +66,7 @@ Inside the finding, the constructor value is available through `$this->context`:
 $documentType = $this->context['document_type'];
 ```
 
-Constructor context and persisted context are related but not identical. The constructor value is input to the finding object; the value returned from `buildContext()` is what Data Health stores and uses for identity.
-
-:::caution
-The base `buildContext()` implementation returns an empty array. Passing context to `found()` does not persist it unless the finding overrides `buildContext()`.
-:::
-
-## Build persisted context
-
-For a finding that should persist its entire constructor context, return it directly:
-
-```php
-use DataHealth\Finding;
-
-class MissingRequiredDocument extends Finding
-{
-    /** @return array<string, mixed> */
-    public function buildContext(): array
-    {
-        return $this->context;
-    }
-}
-```
-
-The resulting `FindingRecord` contains the same array:
+Data Health stores this constructor context directly and uses its hash as part of finding identity. The resulting `FindingRecord` therefore contains the same array:
 
 ```php
 $record = MissingRequiredDocument::found($customer, [
@@ -101,21 +77,13 @@ $record->context;
 // ['document_type' => 'tax-certificate']
 ```
 
-`buildContext()` may also derive a normalized representation from constructor input:
+Normalize values before passing them to `found()` when differently formatted inputs should refer to the same occurrence:
 
 ```php
-/** @return array{document_type: string} */
-public function buildContext(): array
-{
-    return [
-        'document_type' => strtolower(
-            (string) $this->context['document_type'],
-        ),
-    ];
-}
+MissingRequiredDocument::found($customer, [
+    'document_type' => strtolower((string) $documentType),
+]);
 ```
-
-Normalization is useful when differently formatted inputs should refer to the same occurrence.
 
 ## Choose stable values
 
@@ -272,7 +240,7 @@ Context is identity, not an event log. If operators need changing diagnostic det
 
 ## Change context safely
 
-Changing the array returned by `buildContext()` changes finding identity. Adding a key, renaming a key, changing normalization, or changing a value's type can cause the next detection run to create a new record while the previous record remains active or ignored.
+Changing the context passed to `found()` changes finding identity. Adding a key, renaming a key, changing normalization, or changing a value's type can cause the next detection run to create a new record while the previous record remains active or ignored.
 
 Before changing context for a finding already used in production:
 

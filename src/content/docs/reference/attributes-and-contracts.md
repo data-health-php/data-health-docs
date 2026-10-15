@@ -89,7 +89,6 @@ Every finding extends `DataHealth\Finding`.
 | --- | --- | --- |
 | Constructor | `__construct(Model $model, array $context = [])` | Receives the affected model and, when reconstructed from a record, its stored context. |
 | Record a finding | `static found(mixed ...$args): FindingRecord` | Constructs the finding with the supplied arguments and records or refreshes its identity. |
-| Build context | `buildContext(): array` | Returns the context persisted for a newly detected finding; defaults to an empty array. |
 | Key | `static key(): string` | Returns the `Key` value or, by default, the class basename. |
 | Urgency | `static getUrgency(): ?FindingUrgency` | Returns the class-level urgency or `null`. |
 | Worklist | `static getWorklist(): ?string` | Returns the class-level worklist or `null`. |
@@ -98,7 +97,7 @@ Every finding extends `DataHealth\Finding`.
 | Auto-resolution | `isAutomaticallyResolved(): bool` | Reports whether the class has `AutoResolve`. |
 | Auto-verification delay | `getAutoVerifyDelay(): ?int` | Returns the `AutoVerify` delay in minutes, or `null` when automatic verification is disabled. |
 
-`found()` accepts the finding constructor arguments. The default constructor therefore supports `MyFinding::found($model)` and `MyFinding::found($model, $context)`. Override the constructor only when the finding genuinely needs another input shape.
+`found()` accepts the finding constructor arguments. The default constructor therefore supports `MyFinding::found($model)` and `MyFinding::found($model, $context)`. Data Health persists the constructor context directly and uses it when calculating finding identity.
 
 ## Attributes
 

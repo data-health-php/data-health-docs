@@ -40,7 +40,7 @@ The package-wide `data-health` publish tag also includes the migrations. Once pu
 | `key` | String | Stable identifier of the finding type. |
 | `model_type` | String | Morph class of the affected Eloquent model. |
 | `model_id` | Unsigned big integer | Primary key of the affected model. |
-| `context` | JSON | Structured details returned by `buildContext()`. |
+| `context` | JSON | Structured details passed to the finding constructor. |
 | `context_hash` | Character, 64 | SHA-256 hash used as part of finding identity. |
 | `assignee_type` | Nullable string | Morph class of the assigned model. |
 | `assignee_id` | Nullable unsigned big integer | Primary key of the assigned model. |
@@ -88,7 +88,7 @@ Changing a morph map after records have been stored may make existing relationsh
 
 ## Context and context hashes
 
-The `context` JSON contains the array returned by the finding's `buildContext()` method. The `context_hash` is a 64-character SHA-256 digest of a canonical JSON representation:
+The `context` JSON contains the array passed to the finding constructor. The `context_hash` is a 64-character SHA-256 digest of a canonical JSON representation:
 
 - associative array keys are recursively sorted before hashing;
 - list order is preserved; and

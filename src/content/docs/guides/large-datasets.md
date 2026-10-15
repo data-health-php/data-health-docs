@@ -219,12 +219,6 @@ class ExternalSubscriptionStatusMismatch extends Finding implements CanDetect
 
         return $detected;
     }
-
-    /** @return array<string, mixed> */
-    public function buildContext(): array
-    {
-        return $this->context;
-    }
 }
 ```
 

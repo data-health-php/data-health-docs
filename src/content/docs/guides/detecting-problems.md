@@ -110,7 +110,7 @@ Call the finding class's inherited `found()` method for every occurrence:
 $record = PaidOrderMarkedPending::found($order);
 ```
 
-`found()` constructs the finding, builds its persisted context, and asks Data Health to create or refresh the corresponding `FindingRecord`. It returns that record if detection code needs to inspect or act on it.
+`found()` constructs the finding and asks Data Health to create or refresh the corresponding `FindingRecord`. It returns that record if detection code needs to inspect or act on it.
 
 The first constructor argument is normally the affected Eloquent model. Additional arguments are passed to the finding constructor, which accepts context as its second argument by default:
 
@@ -132,15 +132,7 @@ MissingRequiredDocument::found($customer, [
 ]);
 ```
 
-Passing constructor context alone does not persist it. The finding must return the values from `buildContext()`:
-
-```php
-/** @return array<string, mixed> */
-public function buildContext(): array
-{
-    return $this->context;
-}
-```
+Data Health persists the constructor context directly and includes its hash in finding identity. The same values are available to verification and resolution methods through `$this->context`.
 
 Use stable context that identifies the occurrence rather than values that change on every scan. See [Context](/data-health-docs/guides/context/) for hashing, identity, and design guidance.
 
