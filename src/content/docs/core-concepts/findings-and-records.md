@@ -135,7 +135,9 @@ Because the model is part of finding identity, the same finding type reported fo
 Findings are model-oriented: `Finding` requires an Eloquent model when it is constructed. For an application-wide problem, attach the finding to the most appropriate persistent model or introduce a model representing the monitored resource.
 :::
 
+:::caution[Deleting affected models]
 Deleting an affected model can leave a polymorphic record without its model unless cleanup is enabled. See [Model Cleanup](/data-health-docs/guides/model-cleanup/) for the global and opt-in cleanup strategies.
+:::
 
 ## Finding identity and deduplication
 
@@ -194,6 +196,7 @@ These calls create separate records because their context hashes differ.
 
 Data Health stores constructor context directly and makes it available through the finding's readonly `context` property when reconstructing the finding.
 
+:::note[Associative key order does not affect identity]
 Before hashing context, Data Health sorts associative array keys recursively. The following values therefore represent the same identity:
 
 ```php
@@ -202,8 +205,11 @@ Before hashing context, Data Health sorts associative array keys recursively. Th
 ```
 
 List order remains significant, and adding, removing, or changing a context value produces a different hash and therefore a different finding record.
+:::
 
+:::caution[Volatile context creates new records]
 Context should contain stable values that distinguish one occurrence from another. Avoid volatile values such as timestamps or calculated totals unless every changed value is intentionally meant to create a new occurrence.
+:::
 
 ## Record statuses
 

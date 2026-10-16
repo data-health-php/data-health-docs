@@ -9,7 +9,6 @@ Data Health discovers finding classes from configured directories and registers 
 
 - [The default discovery directory](#the-default-discovery-directory)
 - [Configuring directories and namespaces](#configuring-directories-and-namespaces)
-- [How paths become class names](#how-paths-become-class-names)
 - [Which classes are registered](#which-classes-are-registered)
 - [Finding keys](#finding-keys)
 - [Key collisions](#key-collisions)
@@ -51,6 +50,8 @@ The directory does not need to exist when the package is installed. A missing co
 
 Each entry in `data-health.directories` maps a directory relative to the Laravel application's base path to its corresponding PHP namespace prefix.
 
+Discovery scans each configured directory recursively, so findings can be organized in nested directories. Classes in those directories must follow the configured Composer PSR-4 namespace mapping.
+
 You can scan more than one part of an application:
 
 ```php
@@ -68,30 +69,6 @@ The configured namespace must be autoloadable by Composer. Laravel's default `Ap
 :::
 
 After changing published configuration in a production environment, rebuild Laravel's configuration cache as you normally would for that application.
-
-## How paths become class names
-
-Discovery is recursive. For every PHP file below a configured directory, Data Health:
-
-1. removes the configured directory and the `.php` extension from its path;
-2. converts directory separators to namespace separators; and
-3. prefixes the configured namespace.
-
-For example:
-
-```text
-app/DataHealth/Orders/Payments/PaidOrderMarkedPending.php
-```
-
-becomes:
-
-```php
-App\DataHealth\Orders\Payments\PaidOrderMarkedPending
-```
-
-The file must therefore follow PSR-4 conventions: its relative path, filename, namespace, and class name must agree. Discovery considers only files whose extension is exactly `php`; files with other extensions are ignored.
-
-Files within a directory are processed in path order, which makes discovery deterministic. Application code should not depend on that order, however, because findings are addressed by key rather than position.
 
 ## Which classes are registered
 
