@@ -55,16 +55,16 @@ use DataHealth\Finding;
 
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
         // Detect and record findings.
 
-        return 0;
+        return null;
     }
 }
 ```
 
-Synchronous scheduled execution runs `detect()` itself without invoking a returned callable. Return an integer or `null` for that path. Scheduled detections using `Async`, queued manual detections, and the `health:detect` command invoke returned callables through Laravel's container.
+Synchronous scheduled execution runs `detect()` itself without invoking a returned callable. Return `null` by default for that path, or an integer if a caller needs a count. Scheduled detections using `Async`, queued manual detections, and the `health:detect` command invoke returned callables through Laravel's container.
 
 See [Detecting Problems](/data-health-docs/guides/detecting-problems/) for query, result, and idempotency guidance before automating a finding.
 
@@ -78,9 +78,11 @@ use DataHealth\Attributes\Scheduled;
 #[Scheduled('*/5 * * * *')]
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
         // ...
+
+        return null;
     }
 }
 ```
@@ -155,9 +157,11 @@ use DataHealth\Attributes\Scheduled;
 #[Scheduled('*/5 * * * *')]
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
         // ...
+
+        return null;
     }
 }
 ```

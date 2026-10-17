@@ -52,9 +52,11 @@ use DataHealth\Finding;
 
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
         // ...
+
+        return null;
     }
 }
 ```
@@ -69,9 +71,9 @@ Detection executes synchronously in the Livewire request and calls the same meth
 
 ## Detection results
 
-After successful completion, Filament displays a **Detection complete** notification. An integer result adds a correctly pluralized count such as `1 finding detected` or `12 findings detected`.
+After successful completion, Filament displays a **Detection complete** notification. Return `null` by default to complete without a count. An optional integer result adds a correctly pluralized count such as `1 finding detected` or `12 findings detected`.
 
-Return the number of findings reported, rather than the number of models scanned, when operators should interpret the value as a finding count. Boolean and `null` results complete without a count.
+When returning a count, use the number of findings reported, rather than the number of models scanned.
 
 ## Callable detection
 
@@ -80,15 +82,15 @@ Manual detection supports the callable return type allowed by `CanDetect`. Filam
 ```php
 public static function detect(): callable
 {
-    return function (OrderReconciler $reconciler): bool {
+    return function (OrderReconciler $reconciler): null {
         $reconciler->detect();
 
-        return true;
+        return null;
     };
 }
 ```
 
-Callable parameters may use container-resolved dependencies. The resulting boolean completes without a numeric count.
+Callable parameters may use container-resolved dependencies. The `null` result completes without a numeric count.
 
 Scheduled Data Health detection does not invoke a returned callable, so use this form only when manual or custom callers are intended.
 

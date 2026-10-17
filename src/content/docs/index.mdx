@@ -39,16 +39,17 @@ use DataHealth\Finding;
 
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
-        return Order::query()
+        Order::query()
             ->whereNotNull('paid_at')
             ->where('status', 'pending')
             ->get()
             ->each(function (Order $order): void {
                 self::found($order);
-            })
-            ->count();
+            });
+
+        return null;
     }
 }
 ```
@@ -65,10 +66,10 @@ You can also run the detector from application code, a scheduled task, or the op
 
 ```php
 PaidOrderMarkedPending::detect();
-// 3
+// null
 ```
 
-This run creates or refreshes three persistent finding records—one for each matching order. Data Health can present those records for review and track them until the problems are resolved.
+This run creates or refreshes a persistent finding record for each matching order and returns `null`. Data Health can present those records for review and track them until the problems are resolved.
 
 The [Quick Start](/data-health-docs/start-here/quick-start/) extends this example with verification and resolution.
 

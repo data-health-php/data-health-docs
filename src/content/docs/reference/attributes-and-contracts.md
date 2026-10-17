@@ -46,19 +46,16 @@ use DataHealth\Finding;
 #[AutoVerify(2)]
 class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, CanResolve
 {
-    public static function detect(): int
+    public static function detect(): null
     {
-        $count = 0;
-
         Order::query()
             ->whereNotNull('paid_at')
             ->where('status', 'pending')
-            ->eachById(function (Order $order) use (&$count): void {
+            ->eachById(function (Order $order): void {
                 self::found($order);
-                $count++;
             });
 
-        return $count;
+        return null;
     }
 
     #[Description('Check whether the order is no longer both paid and pending.')]
@@ -128,9 +125,9 @@ public static function detect(): int|callable|null;
 
 | Return value | Meaning |
 | --- | --- |
-| `int` | Number of findings detected; useful for manual UI feedback. |
+| `null` | Default for detection that does not need to report a count. |
+| `int` | Optional number of findings detected; useful for manual UI feedback. |
 | `callable` | Work returning an integer or `null`, invoked through Laravel's container by `health:detect`, queued `DetectFinding` jobs, and Filament manual detection. Synchronous scheduled detection does not invoke it. |
-| `null` | Detection completed without reporting a count. |
 
 The method is responsible for querying the source and calling `YourFinding::found(...)` for each problem. Returning a number alone does not create records.
 

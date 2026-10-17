@@ -58,16 +58,17 @@ use DataHealth\Finding;
 #[Description('A paid order is still marked as pending.')]
 class PaidOrderMarkedPending extends Finding implements CanDetect, CanResolve, CanVerify
 {
-    public static function detect(): int
+    public static function detect(): null
     {
-        return Order::query()
+        Order::query()
             ->whereNotNull('paid_at')
             ->where('status', 'pending')
             ->get()
             ->each(function (Order $order): void {
                 self::found($order);
-            })
-            ->count();
+            });
+
+        return null;
     }
 
     public function verify(): bool
@@ -113,7 +114,7 @@ The `detect()` method queries only orders matching the unhealthy state and calls
 
 This example does not need additional context because there can be only one instance of this problem per order. Calling `found()` repeatedly for the same order therefore refreshes the existing record instead of creating duplicates.
 
-Returning the number of detected orders makes the method useful from commands, jobs, tests, and the Filament manual-detection interface.
+The method returns `null`; returning a count is optional. Calling `found()` is what creates or refreshes finding records.
 
 :::tip
 Defining a finding does not run detection automatically. Run `php artisan health:detect`, call `detect()` yourself, or configure [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) when detection should run periodically.
@@ -154,10 +155,10 @@ You can also call the finding's detection method in the Tinker session:
 use App\DataHealth\PaidOrderMarkedPending;
 
 PaidOrderMarkedPending::detect();
-// 1
+// null
 ```
 
-The return value is the number of orders detected during this run.
+Detection reports the matching order and returns `null`. Inspect the finding record to see the result.
 
 ## Inspect the finding record
 
@@ -220,7 +221,7 @@ To demonstrate resolution, make the order inconsistent again and rerun detection
 $order->update(['status' => 'pending']);
 
 PaidOrderMarkedPending::detect();
-// 1
+// null
 
 $record->refresh()->status->value;
 // 'active'
@@ -243,11 +244,11 @@ The finding's `resolve()` method changes the order, and its successful `true` re
 
 ## What happens when detection runs again
 
-Running detection now returns zero because no order matches the unhealthy state:
+Running detection now reports no findings because no order matches the unhealthy state. The method still returns `null`:
 
 ```php
 PaidOrderMarkedPending::detect();
-// 0
+// null
 ```
 
 If the same order becomes inconsistent later, detection reactivates its existing finding record instead of inserting another one. This preserves the identity of the problem while allowing it to recur throughout the model's lifetime.

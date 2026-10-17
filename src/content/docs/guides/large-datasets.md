@@ -71,7 +71,7 @@ use DataHealth\Finding;
 
 class CustomerProfileIncomplete extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
         $customers = CheckCursor::next(
             Customer::query()->where('active', true),
@@ -79,18 +79,15 @@ class CustomerProfileIncomplete extends Finding implements CanDetect
             500,
         );
 
-        $detected = 0;
-
         foreach ($customers as $customer) {
             if (filled($customer->country_code)) {
                 continue;
             }
 
             self::found($customer);
-            $detected++;
         }
 
-        return $detected;
+        return null;
     }
 }
 ```
@@ -132,7 +129,7 @@ number of candidates ÷ batch size × interval between runs
 
 For example, 12,000 candidates checked in batches of 100 every five minutes require roughly ten hours for one complete pass.
 
-Return the number of findings detected, not the number of models scanned, when the result is displayed as a finding count. Record the scanned count separately in logs or telemetry when it is operationally useful.
+Return `null` by default. If a caller needs a finding count, optionally return the number of findings reported. Record the scanned count separately in logs or telemetry when it is operationally useful.
 
 ## Filter the candidate query
 
@@ -184,15 +181,13 @@ use Illuminate\Support\Facades\Http;
 #[Description('The local subscription status differs from the billing provider.')]
 class ExternalSubscriptionStatusMismatch extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
         $subscriptions = CheckCursor::next(
             Subscription::query()->whereNotNull('provider_id'),
             self::class,
             25,
         );
-
-        $detected = 0;
 
         foreach ($subscriptions as $subscription) {
             $response = Http::baseUrl(config('services.billing.url'))
@@ -215,11 +210,9 @@ class ExternalSubscriptionStatusMismatch extends Finding implements CanDetect
             self::found($subscription, [
                 'provider_id' => $subscription->provider_id,
             ]);
-
-            $detected++;
         }
 
-        return $detected;
+        return null;
     }
 }
 ```

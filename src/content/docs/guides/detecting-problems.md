@@ -49,11 +49,11 @@ use DataHealth\Finding;
 
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
-    public static function detect(): int
+    public static function detect(): null
     {
         // Search for problems and report each one.
 
-        return 0;
+        return null;
     }
 }
 ```
@@ -76,23 +76,19 @@ Order::query()
     ->where('status', 'pending');
 ```
 
-Process the result in a memory-safe way and keep count of the occurrences reported:
+Process the result in a memory-safe way and report each occurrence:
 
 ```php
-public static function detect(): int
+public static function detect(): null
 {
-    $detected = 0;
-
     Order::query()
         ->whereNotNull('paid_at')
         ->where('status', 'pending')
-        ->eachById(function (Order $order) use (&$detected): void {
+        ->eachById(function (Order $order): void {
             self::found($order);
-
-            $detected++;
         });
 
-    return $detected;
+    return null;
 }
 ```
 
@@ -130,27 +126,25 @@ The context becomes part of finding identity, so each document type produces a s
 
 The `CanDetect` contract permits `int`, `callable`, or `null` results.
 
-Returning an integer count is the clearest default:
+Return `null` by default to keep detection focused on reporting findings:
 
 ```php
-public static function detect(): int
+public static function detect(): null
 {
-    $detected = 0;
+    // Search for problems and report each one with self::found().
 
-    // Report findings and increment $detected.
-
-    return $detected;
+    return null;
 }
 ```
 
-The count can be displayed by an interface, written to a command's output, asserted in a test, or recorded as operational telemetry. Return `null` when the caller does not need a result.
+An integer count is optional. Return the number of findings reported when a caller needs it, such as for interface feedback or operational telemetry. Counting is not required to create finding records.
 
 A callable allows a supporting caller to invoke deferred detection through Laravel's container. It should return an integer or `null`:
 
 ```php
 public static function detect(): callable
 {
-    return function (OrderReconciler $reconciler): ?int {
+    return function (OrderReconciler $reconciler): null {
         $reconciler->detectProblems();
 
         return null;
@@ -158,7 +152,7 @@ public static function detect(): callable
 }
 ```
 
-The `health:detect` command, queued `DetectFinding` jobs, and Data Health Filament manual detection invoke callable results through Laravel's container. Direct callers must invoke the returned callable themselves. Synchronous scheduled detection calls `detect()` itself without invoking a returned callable; scheduled detections using `Async` execute it in the queued job. Prefer immediate detection with an integer result when the finding must also support synchronous scheduling.
+The `health:detect` command, queued `DetectFinding` jobs, and Data Health Filament manual detection invoke callable results through Laravel's container. Direct callers must invoke the returned callable themselves. Synchronous scheduled detection calls `detect()` itself without invoking a returned callable; scheduled detections using `Async` execute it in the queued job. Prefer immediate detection returning `null` when the finding must also support synchronous scheduling; an integer count is optional.
 
 ## Design detection to be repeatable
 
@@ -264,7 +258,7 @@ Call a detectable finding directly from application code, a job, or Tinker:
 ```php
 use App\DataHealth\PaidOrderMarkedPending;
 
-$detected = PaidOrderMarkedPending::detect();
+PaidOrderMarkedPending::detect();
 ```
 
 For periodic execution, add the `Scheduled` attribute as described in [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/). Data Health Filament can also expose detectable findings as manual actions; see [Finding Types and Detection](/data-health-docs/filament/finding-types-and-detection/).
@@ -290,7 +284,7 @@ it('detects paid orders that are still pending', function () {
         'status' => 'paid',
     ]);
 
-    expect(PaidOrderMarkedPending::detect())->toBe(1);
+    PaidOrderMarkedPending::detect();
 
     $record = FindingRecord::query()->sole();
 

@@ -86,9 +86,11 @@ Descriptions are optional. A finding without one returns `null`, and interfaces 
 
 ```php
 #[Description('Searches for paid orders that still have the pending status.')]
-public static function detect(): int
+public static function detect(): null
 {
     // ...
+
+    return null;
 }
 
 #[Description('Checks whether the order is no longer both paid and pending.')]
