@@ -116,7 +116,7 @@ This example does not need additional context because there can be only one inst
 Returning the number of detected orders makes the method useful from commands, jobs, tests, and the Filament manual-detection interface.
 
 :::tip
-Defining a finding does not run detection automatically. Call `detect()` yourself or configure [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) when detection should run periodically.
+Defining a finding does not run detection automatically. Run `php artisan health:detect`, call `detect()` yourself, or configure [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) when detection should run periodically.
 :::
 
 ## Create an inconsistent order
@@ -140,7 +140,15 @@ $order->save();
 
 ## Run detection
 
-Call the finding's detection method:
+From another terminal in your Laravel application, run this finding through Artisan:
+
+```bash
+php artisan health:detect PaidOrderMarkedPending
+```
+
+The command runs detection synchronously and reports `Completed: PaidOrderMarkedPending` followed by a summary. Omit the finding name to run all discovered `CanDetect` findings. Use `--async` to queue a run; see [Detecting Problems](/data-health-docs/guides/detecting-problems/#run-detection-manually) for selection, exclusions, and queue routing.
+
+You can also call the finding's detection method in the Tinker session:
 
 ```php
 use App\DataHealth\PaidOrderMarkedPending;

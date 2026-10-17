@@ -53,7 +53,15 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 }
 ```
 
-Run the detector from application code, a command, a scheduled task, or the optional Filament interface:
+Run the detector from Artisan:
+
+```bash
+php artisan health:detect PaidOrderMarkedPending
+```
+
+Omit the finding key to run all discovered detectable findings, or add `--async` to queue detection. See [manual detection](/data-health-docs/guides/detecting-problems/#run-detection-manually) for all command options.
+
+You can also run the detector from application code, a scheduled task, or the optional Filament interface:
 
 ```php
 PaidOrderMarkedPending::detect();

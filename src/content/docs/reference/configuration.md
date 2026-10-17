@@ -114,7 +114,7 @@ Set it to `false` when another process is responsible for running detection or w
 DATA_HEALTH_SCHEDULER_ENABLED=false
 ```
 
-This option affects only automatic schedule registration. Direct calls to a finding's `detect()` method, custom jobs, and detection initiated through Filament remain available.
+This option affects only automatic schedule registration. The `health:detect` command (with or without `--async`), direct calls to a finding's `detect()` method, custom jobs, and detection initiated through Filament remain available.
 
 ## Automatic model cleanup
 

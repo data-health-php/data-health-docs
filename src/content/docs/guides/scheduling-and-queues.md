@@ -3,7 +3,7 @@ title: Scheduling and Queues
 description: Run finding detection automatically with Laravel's scheduler and queue system.
 ---
 
-Use the `Scheduled` and `Async` attributes to run detection periodically, prevent overlapping work, and move expensive checks onto a queue.
+Use the `Scheduled` and `Async` attributes to run detection periodically, prevent overlapping work, and move expensive checks onto a queue. Use `health:detect --async` to queue an immediate manual run.
 
 ## Contents
 
@@ -16,6 +16,7 @@ Use the `Scheduled` and `Async` attributes to run detection periodically, preven
 - [Run on multiple application servers](#run-on-multiple-application-servers)
 - [Dispatch detection to a queue](#dispatch-detection-to-a-queue)
 - [Choose a queue and connection](#choose-a-queue-and-connection)
+- [Queue a manual run](#queue-a-manual-run)
 - [Unique detection jobs](#unique-detection-jobs)
 - [Configure a shared cache](#configure-a-shared-cache)
 - [Operate the scheduler and workers](#operate-the-scheduler-and-workers)
@@ -23,11 +24,17 @@ Use the `Scheduled` and `Async` attributes to run detection periodically, preven
 
 ## Execution paths
 
-Detection reaches `detect()` through one of three paths:
+Detection reaches `detect()` through these paths:
 
 ```text
 Direct
 application code ──────────────────────────► detect()
+
+Manual command
+health:detect ─────────────────────────────► detect()
+
+Manual command + --async
+health:detect ──► unique job ──► worker ────► detect()
 
 Scheduled
 scheduler ──► overlap lock ──► detect()
@@ -57,7 +64,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 }
 ```
 
-Scheduled execution runs `detect()` itself. Return an integer or `null`; a callable returned by `detect()` is not invoked as additional scheduled work.
+Synchronous scheduled execution runs `detect()` itself without invoking a returned callable. Return an integer or `null` for that path. Scheduled detections using `Async`, queued manual detections, and the `health:detect` command invoke returned callables through Laravel's container.
 
 See [Detecting Problems](/data-health-docs/guides/detecting-problems/) for query, result, and idempotency guidance before automating a finding.
 
@@ -118,7 +125,7 @@ Scheduled detection is enabled by default. Disable all Data Health schedule regi
 DATA_HEALTH_SCHEDULER_ENABLED=false
 ```
 
-The corresponding configuration value is `data-health.scheduler.enabled`. Disabling it does not prevent direct calls to `detect()`, manual Filament detection, or custom jobs; it only prevents Data Health from registering scheduled events.
+The corresponding configuration value is `data-health.scheduler.enabled`. Disabling it does not prevent `health:detect` (with or without `--async`), direct calls to `detect()`, manual Filament detection, or custom jobs; it only prevents Data Health from registering scheduled events.
 
 When Laravel configuration is cached, rebuild the cache after changing the environment value.
 
@@ -188,6 +195,25 @@ php artisan queue:work redis --queue=data-health
 ```
 
 Long-running checks should use controlled batches rather than relying on a very large worker timeout; see [Large Datasets](/data-health-docs/guides/large-datasets/).
+
+## Queue a manual run
+
+Queue all detectable findings immediately, without waiting for their schedules:
+
+```bash
+php artisan health:detect --async
+```
+
+This includes findings without `Scheduled` or `Async` and works when `data-health.scheduler.enabled` is `false`. Routing uses each finding's `Async` attribute when present and otherwise falls back to application defaults. Override either routing value for this run:
+
+```bash
+php artisan health:detect PaidOrderMarkedPending --async --queue=data-health --connection=redis
+php artisan queue:work redis --queue=data-health
+```
+
+The command uses the same per-finding unique-job lock as scheduled asynchronous detection. Pending or running jobs are reported as skipped. Its exit status covers dispatch failures; inspect worker logs and failed jobs for failures during background detection.
+
+Without `--async`, the command runs synchronously even for findings marked `Async`. Manual synchronous runs do not acquire the scheduler's overlap lock or the queued-job uniqueness lock. See [Detecting Problems](/data-health-docs/guides/detecting-problems/#run-detection-manually) for selectors, exclusions, output, and exit status.
 
 ## Unique detection jobs
 

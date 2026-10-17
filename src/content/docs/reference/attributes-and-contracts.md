@@ -110,7 +110,7 @@ All attributes are in `DataHealth\Attributes`.
 | `Urgency` | Class: `new Urgency(FindingUrgency $urgency)` | Sets urgency on newly created records; the default is `NORMAL`. |
 | `Worklist` | Class: `new Worklist(string $worklist)` | Assigns newly created records to a named operational worklist. |
 | `Scheduled` | Class: `new Scheduled(string $expression)` | Registers a `CanDetect` finding with Laravel's scheduler using a five-field cron expression. |
-| `Async` | Class: `new Async(?string $queue = null, ?string $connection = null)` | Dispatches scheduled detection to a unique queued job, optionally selecting its queue and connection. |
+| `Async` | Class: `new Async(?string $queue = null, ?string $connection = null)` | Dispatches scheduled detection to a unique queued job and supplies default routing for `health:detect --async`. |
 | `AutoResolve` | Class, no arguments | Calls the finding's resolver immediately after a new record is created. |
 | `AutoVerify` | Class: `new AutoVerify(int $delay = 0)` | Queues verification after a new record is created, optionally delayed by a non-negative number of minutes. |
 
@@ -129,7 +129,7 @@ public static function detect(): int|callable|null;
 | Return value | Meaning |
 | --- | --- |
 | `int` | Number of findings detected; useful for manual UI feedback. |
-| `callable` | Work returning an integer or `null` that a supporting caller may execute through Laravel's container. Filament manual detection executes it; scheduled detection calls `detect()` itself and does not execute a returned callable. |
+| `callable` | Work returning an integer or `null`, invoked through Laravel's container by `health:detect`, queued `DetectFinding` jobs, and Filament manual detection. Synchronous scheduled detection does not invoke it. |
 | `null` | Detection completed without reporting a count. |
 
 The method is responsible for querying the source and calling `YourFinding::found(...)` for each problem. Returning a number alone does not create records.

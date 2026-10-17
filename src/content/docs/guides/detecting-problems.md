@@ -60,7 +60,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 
 The method is static because detection searches for occurrences before a particular affected model or finding object exists.
 
-Implementing `CanDetect` also makes the finding eligible for scheduled detection, manual execution from Data Health Filament, and other integrations that operate on detectable finding classes.
+Implementing `CanDetect` also makes the finding eligible for `health:detect`, scheduled detection, manual execution from Data Health Filament, and other integrations that operate on detectable finding classes.
 
 ## Write a focused detection query
 
@@ -158,7 +158,7 @@ public static function detect(): callable
 }
 ```
 
-Data Health Filament invokes callable results for manual detection. Direct callers must invoke the returned callable themselves, and scheduled detection executes the `detect()` method itself rather than treating its return value as additional work. Prefer immediate detection with an integer result unless a specific caller requires a callable.
+The `health:detect` command, queued `DetectFinding` jobs, and Data Health Filament manual detection invoke callable results through Laravel's container. Direct callers must invoke the returned callable themselves. Synchronous scheduled detection calls `detect()` itself without invoking a returned callable; scheduled detections using `Async` execute it in the queued job. Prefer immediate detection with an integer result when the finding must also support synchronous scheduling.
 
 ## Design detection to be repeatable
 
@@ -198,7 +198,68 @@ Use `CanVerify` when an existing finding can determine that its underlying probl
 
 ## Run detection manually
 
-Call a detectable finding directly from application code, a command, a job, or Tinker:
+Run every discovered finding implementing `CanDetect` from Artisan:
+
+```bash
+php artisan health:detect
+```
+
+The command runs detection synchronously by default. It includes findings without `Scheduled` and ignores cron timing and `data-health.scheduler.enabled`. An `Async` attribute does not queue a synchronous command run.
+
+### Command parameters
+
+| Parameter | Behavior |
+| --- | --- |
+| `findings...` | Optional finding keys or fully qualified class names. Omit to run all detectable findings. |
+| `--except=...` | Exclude a finding by key or fully qualified class name. Repeat for multiple exclusions. |
+| `--async` | Dispatch one unique detection job per selected finding. |
+| `--queue=...` | Override the detection queue; requires `--async` and a non-empty value. |
+| `--connection=...` | Override the queue connection; requires `--async` and a non-empty value. |
+
+Select one or more findings by their registered keys or class names:
+
+```bash
+php artisan health:detect PaidOrderMarkedPending MissingRequiredDocument
+php artisan health:detect 'App\DataHealth\PaidOrderMarkedPending'
+```
+
+An explicit `Key` attribute supplies the registered key; otherwise the class basename is used. Exclusions take precedence over explicit selections, and duplicate selections run once:
+
+```bash
+php artisan health:detect --except=ExpensiveFinding --except=RemoteServiceFinding
+```
+
+All selectors, including exclusions, must resolve to discovered findings implementing `CanDetect`. The command validates every selector before any detection or dispatch begins. Unknown or non-detectable findings cause a nonzero exit code without running the selection.
+
+### Queue a manual run
+
+```bash
+php artisan health:detect --async
+php artisan health:detect PaidOrderMarkedPending --async --queue=data-health --connection=redis
+```
+
+With `--async`, every selected finding is queued, including findings without `Async` or `Scheduled`. Queue routing uses each finding's `Async` attribute when present, then the application's defaults. The `--queue` and `--connection` options override those values independently.
+
+Use a non-`sync` connection and a worker consuming the selected queue for background execution. Queued or running detections for the same finding class are skipped using Laravel's unique-job lock. See [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/#queue-a-manual-run) for worker and cache setup.
+
+### Output and exit status
+
+The command reports each completed, queued, skipped, or failed detection and prints a summary:
+
+```text
+Completed: PaidOrderMarkedPending
+Detection summary: 1 completed, 0 skipped, 0 failed.
+```
+
+The summary counts finding classes processed, rather than the number of records reported by their `detect()` methods. Individual detection or dispatch failures are reported while the remaining findings continue. Any failure produces a nonzero exit code; an empty selection succeeds with `No detectable findings selected.`
+
+For async runs, success confirms dispatch or that a job was already queued or running. It does not confirm that the worker completed detection. A failed dispatch releases its uniqueness lock so a later command can retry.
+
+Both command execution and queued jobs invoke callable detection results through Laravel's container. View the complete command help with `php artisan help health:detect`.
+
+### Call detection from PHP
+
+Call a detectable finding directly from application code, a job, or Tinker:
 
 ```php
 use App\DataHealth\PaidOrderMarkedPending;

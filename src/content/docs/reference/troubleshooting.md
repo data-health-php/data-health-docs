@@ -11,6 +11,7 @@ Work from the symptom below, then confirm that cached configuration and long-run
 - [A finding key cannot be resolved](#a-finding-key-cannot-be-resolved)
 - [Duplicate findings appear](#duplicate-findings-appear)
 - [Context creates unexpected identities](#context-creates-unexpected-identities)
+- [The detection command runs no findings or fails](#the-detection-command-runs-no-findings-or-fails)
 - [Scheduled detection does not run](#scheduled-detection-does-not-run)
 - [A scheduled detection overlaps or remains locked](#a-scheduled-detection-overlaps-or-remains-locked)
 - [Asynchronous detection runs synchronously](#asynchronous-detection-runs-synchronously)
@@ -86,6 +87,16 @@ Keep identity context deterministic. Sort lists when their order has no meaning,
 
 See [Context](/data-health-docs/guides/context/) for stable and unstable examples.
 
+## The detection command runs no findings or fails
+
+`health:detect` runs discovered classes implementing `CanDetect`. If it reports `No detectable findings selected.`, check discovery, the contract, and whether `--except` removed every selected finding. An empty selection is successful.
+
+Finding arguments and exclusions accept registered keys or fully qualified class names. An explicit `Key` changes the key accepted by the command. Unknown or non-detectable selectors fail validation before any selected finding runs.
+
+`--queue` and `--connection` require `--async` and non-empty values. After validation, individual detection or dispatch failures do not stop the remaining findings. Read the per-finding errors and summary; any failure produces a nonzero exit code. The completed or queued count measures finding classes processed, rather than finding records created.
+
+With `--async`, already queued or running detections are skipped successfully. A successful dispatch does not establish that the worker completed detection; check the selected queue, workers, and failed jobs. See [Detecting Problems](/data-health-docs/guides/detecting-problems/#run-detection-manually) for command examples.
+
 ## Scheduled detection does not run
 
 Run through the complete execution chain:
@@ -122,13 +133,13 @@ The `Async` attribute dispatches a job, but Laravel's `sync` queue connection ex
 #[Async(queue: 'data-health', connection: 'redis')]
 ```
 
-Then run a worker for the selected destination. Also verify that the finding has both `Scheduled` and `Async`; `Async` affects scheduled detection and does not transform arbitrary direct calls to `detect()` into queued work.
+Then run a worker for the selected destination. For scheduled detection, verify that the finding has both `Scheduled` and `Async`. For manual command execution, pass `--async`; an `Async` attribute alone does not queue `health:detect`, while `health:detect --async` can queue findings without either attribute. Direct calls to `detect()` remain synchronous.
 
 ## A queued detection is not processed
 
 Confirm all of the following:
 
-- a worker is running on the attribute's connection and queue;
+- a worker is running on the selected connection and queue, accounting for any `health:detect --queue` or `--connection` overrides;
 - the queue name matches exactly;
 - failed jobs have been inspected;
 - the worker was restarted after code changes;
