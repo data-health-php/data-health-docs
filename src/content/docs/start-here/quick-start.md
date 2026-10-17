@@ -31,7 +31,15 @@ The finding will consider an order unhealthy when `paid_at` is not null and `sta
 
 ## Create the finding
 
-Create `app/DataHealth/PaidOrderMarkedPending.php`:
+Generate `app/DataHealth/PaidOrderMarkedPending.php` with detection, verification, and resolution placeholders:
+
+```bash
+php artisan health:make:finding PaidOrderMarkedPending --verify --resolve
+```
+
+The generator includes `CanDetect` by default. You can customize the default interfaces and add metadata or scheduling options; see [Generating Finding Classes](/data-health-docs/guides/generating-finding-classes/).
+
+Replace the generated placeholders with the implementation below and add its `Description` attribute:
 
 ```php
 <?php

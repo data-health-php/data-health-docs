@@ -36,6 +36,7 @@ export default defineConfig({
 				{
 					label: 'Guides',
 					items: [
+						{ label: 'Generating Finding Classes', slug: 'guides/generating-finding-classes' },
 						{ label: 'Detecting Problems', slug: 'guides/detecting-problems' },
 						{ label: 'Context', slug: 'guides/context' },
 						{ label: 'Verifying Findings', slug: 'guides/verifying-findings' },

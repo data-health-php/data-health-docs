@@ -112,19 +112,11 @@ $record = PaidOrderMarkedPending::found($order);
 
 `found()` constructs the finding and asks Data Health to create or refresh the corresponding `FindingRecord`. It returns that record if detection code needs to inspect or act on it.
 
-The first constructor argument is normally the affected Eloquent model. Additional arguments are passed to the finding constructor, which accepts context as its second argument by default:
-
-```php
-SomeFinding::found($model, [
-    'reason' => 'unexpected-state',
-]);
-```
-
 Every reported finding must belong to a persisted model with a stable primary key. Save newly created models before passing them to `found()`.
 
 ## Pass context to a finding
 
-Context distinguishes multiple occurrences of the same finding for the same model. A customer missing two required document types, for example, can have one record for each type:
+Pass context as the second argument when the same finding can occur more than once for one model. A customer missing two required document types, for example, can have one record for each type:
 
 ```php
 MissingRequiredDocument::found($customer, [
@@ -132,9 +124,7 @@ MissingRequiredDocument::found($customer, [
 ]);
 ```
 
-Data Health persists the constructor context directly and includes its hash in finding identity. The same values are available to verification and resolution methods through `$this->context`.
-
-Use stable context that identifies the occurrence rather than values that change on every scan. See [Context](/data-health-docs/guides/context/) for hashing, identity, and design guidance.
+The context becomes part of finding identity, so each document type produces a separate record. See [Context](/data-health-docs/guides/context/) for choosing stable values and using context during verification and resolution.
 
 ## Return a useful result
 
@@ -155,15 +145,15 @@ public static function detect(): int
 
 The count can be displayed by an interface, written to a command's output, asserted in a test, or recorded as operational telemetry. Return `null` when the caller does not need a result.
 
-A callable allows a supporting caller to invoke deferred detection through Laravel's container:
+A callable allows a supporting caller to invoke deferred detection through Laravel's container. It should return an integer or `null`:
 
 ```php
 public static function detect(): callable
 {
-    return function (OrderReconciler $reconciler): bool {
+    return function (OrderReconciler $reconciler): ?int {
         $reconciler->detectProblems();
 
-        return true;
+        return null;
     };
 }
 ```

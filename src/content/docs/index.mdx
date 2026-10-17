@@ -3,26 +3,32 @@ title: Introduction
 description: Learn how Data Health detects, records, and resolves inconsistencies in Laravel application data.
 template: splash
 hero:
-  title: Data Health
-  tagline: Find inconsistencies in your Laravel application's data, verify them, and resolve them.
+  title: Find and resolve unhealthy data in Laravel
+  tagline: Define application-specific data checks in PHP. Data Health records every occurrence, tracks its status, and helps your team verify or resolve it.
   image:
     file: ../../assets/data-health-logo-mark.svg
     alt: Data Health logo
   actions:
-    - text: Install Data Health
-      link: /data-health-docs/start-here/installation/
-      icon: right-arrow
     - text: Quick Start
       link: /data-health-docs/start-here/quick-start/
-      variant: minimal
       icon: rocket
+    - text: Install Data Health
+      link: /data-health-docs/start-here/installation/
+      variant: minimal
+      icon: right-arrow
 ---
 
-Data Health is a Laravel package for finding inconsistencies in application data and turning them into records that can be reviewed, verified, and resolved.
+Database constraints and validation keep individual writes valid. They cannot always detect problems that emerge across records or over time: duplicate customers, orders stuck in an impossible state, missing relationships, or stale derived values.
 
-It is designed for problems that valid database rows and ordinary validation rules cannot describe on their own: duplicate customers, orders stuck in an impossible state, missing relationships, stale derived values, or any other condition that makes otherwise valid data incorrect.
+Data Health lets you express these application-specific rules as **finding classes**. When a rule finds a problem, Data Health creates a persistent **finding record** that your team can review, verify, and resolve.
 
-## A finding in practice
+| Your application | Data Health |
+| --- | --- |
+| Defines what unhealthy data looks like and how it can be checked or corrected. | Records, deduplicates, and tracks every discovered occurrence. |
+
+Finding classes live in configured directories such as `app/DataHealth`. Data Health discovers them automatically, so each class can focus on the problem it represents instead of registration boilerplate.
+
+## From rule to tracked findings
 
 For example, this finding detects orders that have been paid but are still marked as pending:
 
@@ -38,6 +44,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
         return Order::query()
             ->whereNotNull('paid_at')
             ->where('status', 'pending')
+            ->get()
             ->each(function (Order $order): void {
                 self::found($order);
             })
@@ -46,22 +53,16 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 }
 ```
 
-Each call to `found()` creates or refreshes a persistent finding record for the affected order. Data Health can then present that record for review and track it until the problem is resolved.
+Run the detector from application code, a command, a scheduled task, or the optional Filament interface:
+
+```php
+PaidOrderMarkedPending::detect();
+// 3
+```
+
+This run creates or refreshes three persistent finding records—one for each matching order. Data Health can present those records for review and track them until the problems are resolved.
 
 The [Quick Start](/data-health-docs/start-here/quick-start/) extends this example with verification and resolution.
-
-## How the responsibilities are split
-
-A **finding** is a PHP class that describes one type of data problem. When your detection code encounters that problem for an Eloquent model, the finding creates a persistent **finding record** containing the affected model, its status, its urgency, and any context needed to understand the issue.
-
-The work is split between two layers:
-
-| Layer | Responsibility |
-| --- | --- |
-| **Your application** | Defines what unhealthy data looks like and how it can be checked or corrected. |
-| **Data Health** | Keeps track of every discovered occurrence and its lifecycle. |
-
-Finding classes live in configured directories such as `app/DataHealth`. Data Health discovers them automatically, so each class can focus on the problem it represents instead of registration boilerplate.
 
 ## What a finding can describe
 
@@ -93,4 +94,4 @@ Both packages use the same finding classes and records, so adding the Filament i
 
 ## Where to go next
 
-Continue with [Installation](/data-health-docs/start-here/installation/) to add Data Health to a Laravel application, or follow the [Quick Start](/data-health-docs/start-here/quick-start/) to build a complete finding workflow.
+Follow the [Quick Start](/data-health-docs/start-here/quick-start/) to build a complete finding workflow, or begin with [Installation](/data-health-docs/start-here/installation/) to add Data Health to a Laravel application.

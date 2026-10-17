@@ -129,7 +129,7 @@ public static function detect(): int|callable|null;
 | Return value | Meaning |
 | --- | --- |
 | `int` | Number of findings detected; useful for manual UI feedback. |
-| `callable` | Work that a supporting caller may execute through Laravel's container. Filament manual detection executes it; scheduled detection calls `detect()` itself and does not execute a returned callable. |
+| `callable` | Work returning an integer or `null` that a supporting caller may execute through Laravel's container. Filament manual detection executes it; scheduled detection calls `detect()` itself and does not execute a returned callable. |
 | `null` | Detection completed without reporting a count. |
 
 The method is responsible for querying the source and calling `YourFinding::found(...)` for each problem. Returning a number alone does not create records.

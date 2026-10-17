@@ -3,13 +3,14 @@ title: Configuration
 description: Reference every Data Health configuration option.
 ---
 
-Data Health works with its defaults immediately; publish configuration only when the application needs different discovery paths, scheduler behavior, cleanup behavior, or Filament presentation.
+Data Health works with its defaults immediately; publish configuration when the application needs different discovery paths, generated finding interfaces, scheduler behavior, cleanup behavior, or Filament presentation.
 
 ## Contents
 
 - [Publish configuration](#publish-configuration)
 - [Core configuration](#core-configuration)
 - [Finding directories](#finding-directories)
+- [Generated finding interfaces](#generated-finding-interfaces)
 - [Scheduler](#scheduler)
 - [Automatic model cleanup](#automatic-model-cleanup)
 - [Read configuration at runtime](#read-configuration-at-runtime)
@@ -38,6 +39,8 @@ Published files belong to the application and are not overwritten by package upd
 The default configuration is:
 
 ```php
+use DataHealth\Contracts\CanDetect;
+
 return [
     'scheduler' => [
         'enabled' => env('DATA_HEALTH_SCHEDULER_ENABLED', true),
@@ -50,12 +53,17 @@ return [
     'directories' => [
         'app/DataHealth' => 'App\\DataHealth\\',
     ],
+
+    'make_finding' => [
+        'interfaces' => [CanDetect::class],
+    ],
 ];
 ```
 
 | Configuration key | Default | Purpose |
 | --- | --- | --- |
 | `data-health.directories` | `['app/DataHealth' => 'App\\DataHealth\\']` | Maps directories to namespaces for finding discovery. |
+| `data-health.make_finding.interfaces` | `[DataHealth\Contracts\CanDetect::class]` | Interfaces and method placeholders included in newly generated finding classes. |
 | `data-health.scheduler.enabled` | `true` | Registers findings carrying `Scheduled` with Laravel's scheduler. |
 | `data-health.auto_delete.enabled` | `false` | Deletes finding records when their related model is deleted. |
 
@@ -73,6 +81,24 @@ Each entry in `directories` maps a path relative to the application base path to
 The namespace may include or omit its trailing backslash because Data Health normalizes it before appending the relative class name. The namespace below it must mirror the directory structure, and only concrete subclasses of `DataHealth\Finding` are registered.
 
 See [Finding Discovery](/data-health-docs/core-concepts/finding-discovery/) for the complete discovery rules.
+
+## Generated finding interfaces
+
+`health:make:finding` includes `CanDetect` and a `detect()` placeholder by default. Set `make_finding.interfaces` to choose any combination of the three supported interfaces:
+
+```php
+'make_finding' => [
+    'interfaces' => [
+        \DataHealth\Contracts\CanDetect::class,
+        \DataHealth\Contracts\CanVerify::class,
+        \DataHealth\Contracts\CanResolve::class,
+    ],
+],
+```
+
+Use `[]` to generate findings without default capability interfaces or methods. Unsupported interfaces are rejected before a file is written. This setting affects future generation; existing classes remain as they are.
+
+Command options add capabilities to the configured defaults without duplicating interfaces or methods. `--schedule` always adds detection, `--auto-verify` adds verification, and `--auto-resolve` adds resolution. See [Generating Finding Classes](/data-health-docs/guides/generating-finding-classes/) for all generator options.
 
 ## Scheduler
 
@@ -112,6 +138,7 @@ Use Laravel's `config()` helper with the package keys:
 
 ```php
 $directories = config('data-health.directories');
+$findingInterfaces = config('data-health.make_finding.interfaces');
 $schedulerEnabled = config('data-health.scheduler.enabled');
 $autoDeleteEnabled = config('data-health.auto_delete.enabled');
 ```
