@@ -129,7 +129,7 @@ php artisan health:make:finding PaidOrderMarkedPending \
 
 `--schedule` adds `Scheduled`, `CanDetect`, and a detection placeholder, even when detection is absent from the configured defaults. The cron expression must be valid.
 
-`--async` adds the `Async` attribute and requires `--schedule`. `--queue` and `--connection` require `--async`; omit them to use Laravel's default queue routing. Implement detection and operate the scheduler and queue workers as described in [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/).
+`--async` adds `Async` directly to `detect()` and adds the detection contract and method if needed; it does not require `--schedule`. Verification and resolution stay synchronous. `--queue` and `--connection` require `--async`; omit them to use Laravel's default queue routing. Implement detection and operate the scheduler and queue workers as described in [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/).
 
 ## Generate automatic actions
 
@@ -187,7 +187,7 @@ Invalid class names, unsupported default interfaces, invalid urgency or schedule
 | `--key=`, `--description=`, `--worklist=` | Add the corresponding class metadata attributes. |
 | `--urgency=` | Add an urgency attribute using `immediate`, `soon`, `normal`, or `deferred`. |
 | `--schedule=` | Add a cron schedule and detection capability. |
-| `--async` | Queue scheduled detection; requires `--schedule`. |
+| `--async` | Add `Async` to `detect()` and detection capability if needed; no schedule required. |
 | `--queue=`, `--connection=` | Set asynchronous detection routing; require `--async`. |
 | `--auto-resolve` | Add automatic resolution and its capability. |
 | `--auto-verify=` | Add automatic verification with a non-negative delay in minutes and its capability. |

@@ -3,7 +3,7 @@ title: Scheduling and Queues
 description: Run finding detection automatically with Laravel's scheduler and queue system.
 ---
 
-Use the `Scheduled` and `Async` attributes to run detection periodically, prevent overlapping work, and move expensive checks onto a queue. Use `health:detect --async` to queue an immediate manual run.
+Use `Scheduled` on the class to run detection periodically and `Async` on `detect()` to queue expensive detection work. Use `health:detect --async` to queue an immediate manual run.
 
 ## Contents
 
@@ -15,6 +15,7 @@ Use the `Scheduled` and `Async` attributes to run detection periodically, preven
 - [Prevent overlapping work](#prevent-overlapping-work)
 - [Run on multiple application servers](#run-on-multiple-application-servers)
 - [Dispatch detection to a queue](#dispatch-detection-to-a-queue)
+- [Async on detect only](#async-on-detect-only)
 - [Choose a queue and connection](#choose-a-queue-and-connection)
 - [Queue a manual run](#queue-a-manual-run)
 - [Unique detection jobs](#unique-detection-jobs)
@@ -30,10 +31,10 @@ Detection reaches `detect()` through these paths:
 Direct
 application code ──────────────────────────► detect()
 
-Manual command
+Manual command without Async, or with --sync
 health:detect ─────────────────────────────► detect()
 
-Manual command + --async
+Manual command + Async or --async
 health:detect ──► unique job ──► worker ────► detect()
 
 Scheduled
@@ -64,7 +65,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 }
 ```
 
-Synchronous scheduled execution runs `detect()` itself without invoking a returned callable. Return `null` by default for that path, or an integer if a caller needs a count. Scheduled detections using `Async`, queued manual detections, and the `health:detect` command invoke returned callables through Laravel's container.
+Manual, scheduled, and queued detection all evaluate the result through `DetectFinding`: integers and `null` need no further action, returned callables are invoked through Laravel's container, and `Detector` class names are resolved through the container before their `detect()` method runs.
 
 See [Detecting Problems](/data-health-docs/guides/detecting-problems/) for query, result, and idempotency guidance before automating a finding.
 
@@ -153,10 +154,10 @@ Without `Async`, `detect()` runs inside the scheduler process. Add `Async` to di
 use DataHealth\Attributes\Async;
 use DataHealth\Attributes\Scheduled;
 
-#[Async]
 #[Scheduled('*/5 * * * *')]
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
+    #[Async]
     public static function detect(): null
     {
         // ...
@@ -171,6 +172,40 @@ Use asynchronous detection when a check is slow, performs network requests, need
 :::note
 If the selected queue connection is `sync`, the job still runs immediately. Configure a non-synchronous connection for actual background execution.
 :::
+
+## Async on detect only
+
+Apply `#[Async]` only to the finding's `detect()` method. Package-managed manual
+and scheduled detection honors it. The attribute does not intercept direct PHP
+calls to `MyFinding::detect()`, which remain synchronous.
+
+```php
+#[Async(queue: 'data-health', connection: 'redis')]
+public static function detect(): int|callable|string|null
+{
+    // Detect and report findings.
+    return null;
+}
+```
+
+Class-level attributes and placement on other methods are rejected during finding
+discovery. Move existing class-level `Async` attributes directly onto `detect()`.
+`Async` does not schedule execution; keep `Scheduled` on the class when periodic
+detection is wanted.
+
+`health:detect` honors the method attribute by default. Use `--sync` to force
+synchronous detection or `--async` to queue all selected findings; combining the
+flags is an error. The `--queue` and `--connection` overrides require explicit
+`--async` and take precedence independently over attribute routing. Omitted
+attribute values use application queue defaults.
+
+Verification and resolution always run synchronously through the manager, facade,
+commands, and record browser. `DataHealth::verify($record)` and
+`DataHealth::resolve($record)` return the actual boolean result immediately; their
+commands have no async execution flags. `AutoResolve` also runs resolution
+immediately. `AutoVerify` independently queues verification after commit with its
+configured delay, active-record check, and application queue defaults. Detection's
+`Async` attribute does not configure automatic verification.
 
 ## Choose a queue and connection
 
@@ -208,7 +243,7 @@ Queue all detectable findings immediately, without waiting for their schedules. 
 php artisan health:detect --async -n
 ```
 
-This includes findings without `Scheduled` or `Async` and works when `data-health.scheduler.enabled` is `false`. Routing uses each finding's `Async` attribute when present and otherwise falls back to application defaults. Override either routing value for this run:
+This includes findings without `Scheduled` or `Async` and works when `data-health.scheduler.enabled` is `false`. Routing uses `Async` on `detect()` or application queue defaults. Override either routing value for this run:
 
 ```bash
 php artisan health:detect PaidOrderMarkedPending --async --queue=data-health --connection=redis -n
@@ -217,7 +252,7 @@ php artisan queue:work redis --queue=data-health
 
 The command uses the same per-finding unique-job lock as scheduled asynchronous detection. Pending or running jobs are reported as skipped. Its exit status covers dispatch failures; inspect worker logs and failed jobs for failures during background detection.
 
-Without `--async`, the command runs synchronously even for findings marked `Async`. Manual synchronous runs do not acquire the scheduler's overlap lock or the queued-job uniqueness lock. See the [Detection command](/data-health-docs/cli/detect/) for selectors, exclusions, and output, and [Automation and Exit Codes](/data-health-docs/cli/automation/) for scripting and dispatch status.
+Without execution flags, the command honors `Async` on `detect()`; unannotated detection runs synchronously. Use `--sync` to force a synchronous run. The `--sync` and `--async` flags cannot be combined. Manual synchronous runs do not acquire the scheduler's overlap lock or the queued-job uniqueness lock. See the [Detection command](/data-health-docs/cli/detect/) for selectors, exclusions, and output, and [Automation and Exit Codes](/data-health-docs/cli/automation/) for scripting and dispatch status.
 
 ## Unique detection jobs
 

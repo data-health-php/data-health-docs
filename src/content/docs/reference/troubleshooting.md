@@ -133,7 +133,7 @@ The `Async` attribute dispatches a job, but Laravel's `sync` queue connection ex
 #[Async(queue: 'data-health', connection: 'redis')]
 ```
 
-Then run a worker for the selected destination. For scheduled detection, verify that the finding has both `Scheduled` and `Async`. For manual command execution, pass `--async`; an `Async` attribute alone does not queue `health:detect`, while `health:detect --async` can queue findings without either attribute. Direct calls to `detect()` remain synchronous.
+Then run a worker for the selected destination. For scheduled detection, verify that the finding has both `Scheduled` and `Async`. Place `Async` directly on `detect()`; class-level usage and placement on other methods are rejected during discovery. Manual `health:detect` honors the method attribute. `health:detect --async` also queues unannotated findings, and `--sync` overrides attributes. Verification and resolution always provide synchronous boolean results and have no async execution flags. Direct calls to `detect()` remain synchronous.
 
 ## A queued detection is not processed
 

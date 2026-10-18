@@ -81,7 +81,7 @@ Each finding class can opt into only the capabilities it needs:
 - **[Verification](/data-health-docs/guides/verifying-findings/)** checks whether a previously recorded problem still exists.
 - **[Resolution](/data-health-docs/guides/resolving-findings/)** performs an application-specific correction.
 - **[Scheduling](/data-health-docs/guides/scheduling-and-queues/#schedule-detection)** runs detection from Laravel's scheduler using a cron expression.
-- **[Asynchronous execution](/data-health-docs/guides/scheduling-and-queues/#dispatch-detection-to-a-queue)** dispatches scheduled detection through Laravel's queue.
+- **[Asynchronous execution](/data-health-docs/guides/scheduling-and-queues/#dispatch-detection-to-a-queue)** queues manual and scheduled detection with `Async` on the `detect()` method.
 - **[Automatic resolution](/data-health-docs/guides/resolving-findings/#resolve-new-findings-automatically)** attempts to resolve a finding as soon as it is first recorded.
 
 [Attributes](/data-health-docs/reference/attributes-and-contracts/#attributes) can also give a finding a [stable key](/data-health-docs/guides/metadata-and-worklists/#define-a-stable-key), [human-readable descriptions](/data-health-docs/guides/metadata-and-worklists/#describe-a-finding), an [urgency](/data-health-docs/guides/metadata-and-worklists/#assign-an-urgency), and a [worklist](/data-health-docs/guides/metadata-and-worklists/#assign-a-worklist). These values make findings easier to organize and present without coupling the core package to a particular user interface.

@@ -288,11 +288,15 @@ Use `Async` when remote latency should not occupy the scheduler process:
 ```php
 use DataHealth\Attributes\Async;
 
-#[Async(queue: 'data-health', connection: 'redis')]
 #[Scheduled('*/5 * * * *')]
 class ExternalSubscriptionStatusMismatch extends Finding implements CanDetect
 {
-    // ...
+    #[Async(queue: 'data-health', connection: 'redis')]
+    public static function detect(): null
+    {
+        // Use the bounded detection implementation from the preceding example.
+        return null;
+    }
 }
 ```
 

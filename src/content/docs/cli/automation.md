@@ -44,6 +44,8 @@ php artisan health:detect --async --queue=data-health --connection=redis -n --no
 
 Command success confirms dispatch or an existing queued/running job. It does not confirm background completion. Configure the application connection, shared uniqueness locks, and workers as described in [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/).
 
+Detection honors `Async` on `detect()` even without `--async`. Use `--sync` for a guaranteed synchronous run; combining the flags is an error. Verification and resolution always return immediate results and have no async execution flags.
+
 Async progress counts dispatch attempts by finding class. Worker failures follow the application's queue retry and failure handling. A `sync` connection executes the dispatched job during the command.
 
 ## Interpret exit codes

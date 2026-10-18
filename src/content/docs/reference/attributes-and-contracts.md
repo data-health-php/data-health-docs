@@ -42,10 +42,10 @@ use DataHealth\Finding;
 #[Urgency(FindingUrgency::SOON)]
 #[Worklist('billing-operations')]
 #[Scheduled('*/15 * * * *')]
-#[Async(queue: 'data-health', connection: 'redis')]
 #[AutoVerify(2)]
 class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, CanResolve
 {
+    #[Async(queue: 'data-health', connection: 'redis')]
     public static function detect(): null
     {
         Order::query()
@@ -91,6 +91,7 @@ Every finding extends `DataHealth\Finding`.
 | Worklist | `static getWorklist(): ?string` | Returns the class-level worklist or `null`. |
 | Description | `static getDescription(): ?string` | Returns the class-level description or `null`. |
 | Method description | `static getMethodDescription(string $method): ?string` | Returns a `Description` attached to the named method. |
+| Async detection | `static getAsync(): ?Async` | Returns `Async` on `detect()`, or `null`; rejects invalid placement. |
 | Auto-resolution | `isAutomaticallyResolved(): bool` | Reports whether the class has `AutoResolve`. |
 | Auto-verification delay | `getAutoVerifyDelay(): ?int` | Returns the `AutoVerify` delay in minutes, or `null` when automatic verification is disabled. |
 
@@ -107,9 +108,11 @@ All attributes are in `DataHealth\Attributes`.
 | `Urgency` | Class: `new Urgency(FindingUrgency $urgency)` | Sets urgency on newly created records; the default is `NORMAL`. |
 | `Worklist` | Class: `new Worklist(string $worklist)` | Assigns newly created records to a named operational worklist. |
 | `Scheduled` | Class: `new Scheduled(string $expression)` | Registers a `CanDetect` finding with Laravel's scheduler using a five-field cron expression. |
-| `Async` | Class: `new Async(?string $queue = null, ?string $connection = null)` | Dispatches scheduled detection to a unique queued job and supplies default routing for `health:detect --async`. |
+| `Async` | Only the `detect()` method: `new Async(?string $queue = null, ?string $connection = null)` | Queues manual and scheduled detection. Class-level usage and placement on other methods are rejected during finding discovery. |
 | `AutoResolve` | Class, no arguments | Calls the finding's resolver immediately after a new record is created. |
 | `AutoVerify` | Class: `new AutoVerify(int $delay = 0)` | Queues verification after a new record is created, optionally delayed by a non-negative number of minutes. |
+
+Move existing class-level `Async` attributes onto `detect()`. Verification and resolution stay synchronous and return boolean results. `AutoVerify` independently queues verification with application queue defaults; detection routing does not affect it.
 
 Changing `Urgency` or `Worklist` does not rewrite existing records; those values are copied when a record is first created. Descriptions are read from code at runtime and are not stored in the findings table.
 
@@ -127,7 +130,7 @@ public static function detect(): int|callable|null;
 | --- | --- |
 | `null` | Default for detection that does not need to report a count. |
 | `int` | Optional number of findings detected; useful for manual UI feedback. |
-| `callable` | Work returning an integer or `null`, invoked through Laravel's container by `health:detect`, queued `DetectFinding` jobs, and Filament manual detection. Synchronous scheduled detection does not invoke it. |
+| `callable` | Work returning an integer or `null`, invoked through Laravel's container by `health:detect`, queued `DetectFinding` jobs, and Filament manual detection. Synchronous scheduled detection invokes it through the container too. |
 
 The method is responsible for querying the source and calling `YourFinding::found(...)` for each problem. Returning a number alone does not create records.
 

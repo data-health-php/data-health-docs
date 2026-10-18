@@ -152,7 +152,7 @@ public static function detect(): callable
 }
 ```
 
-The `health:detect` command, queued `DetectFinding` jobs, and Data Health Filament manual detection invoke callable results through Laravel's container. Direct callers must invoke the returned callable themselves. Synchronous scheduled detection calls `detect()` itself without invoking a returned callable; scheduled detections using `Async` execute it in the queued job. Prefer immediate detection returning `null` when the finding must also support synchronous scheduling; an integer count is optional.
+The `health:detect` command, queued `DetectFinding` jobs, and Data Health Filament manual detection invoke callable results through Laravel's container. Direct callers must invoke the returned callable themselves. Synchronous scheduled detection also evaluates callable and detector-class results through `DetectFinding`. Add `Async` only to `detect()` to queue package-managed detection; direct calls remain synchronous. An integer count is optional.
 
 ## Design detection to be repeatable
 

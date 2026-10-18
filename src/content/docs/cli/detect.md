@@ -21,7 +21,7 @@ Use `health:detect` to run detection for discovered finding classes or dispatch 
 php artisan health:detect [findings...]
 ```
 
-The command operates on discovered finding classes implementing `DataHealth\Contracts\CanDetect`. It runs synchronously by default, including findings without `Scheduled`, and ignores cron timing and `data-health.scheduler.enabled`.
+The command operates on discovered finding classes implementing `DataHealth\Contracts\CanDetect`. It honors `Async` on `detect()`, otherwise runs synchronously, and ignores cron timing and `data-health.scheduler.enabled`. Findings do not need `Scheduled` for a manual run.
 
 For implementing the finding's detection logic, see [Detecting Problems](/data-health-docs/guides/detecting-problems/).
 
@@ -34,7 +34,8 @@ For implementing the finding's detection logic, see [Detecting Problems](/data-h
 | `--interactive` | Explicitly request selection; it is automatic when standard input and output are terminals. |
 | `--no-interaction`, `-n` | Run the validated candidates without selection. |
 | `--no-progress` | Hide the progress bar while keeping results and the summary. |
-| `--async` | Dispatch a unique detection job per selected finding. |
+| `--async` | Dispatch a unique detection job per selected finding regardless of attributes. |
+| `--sync` | Run all selected findings synchronously, ignoring `Async`; cannot be combined with `--async`. |
 | `--queue=...` | Override the detection queue; requires `--async` and a non-empty value. |
 | `--connection=...` | Override the connection; requires `--async` and a non-empty value. |
 
@@ -82,9 +83,9 @@ php artisan health:detect --async -n
 php artisan health:detect PaidOrderMarkedPending --async --queue=data-health --connection=redis -n
 ```
 
-`--async` queues selected findings whether or not they have `Async` or `Scheduled` attributes. Without `--async`, an `Async` attribute does not queue the manual run.
+`--async` queues selected findings whether or not they have `Async` or `Scheduled` attributes. Without execution flags, `Async` on `detect()` queues the manual run. Use `--sync` to force synchronous execution. Combining `--sync` and `--async` is an error.
 
-Queue and connection values come from each finding's `Async` attribute or the application defaults. Command-line overrides take precedence independently. Configure a non-`sync` connection and a running worker for background execution; see [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/#queue-a-manual-run).
+Queue and connection values come from `Async` on `detect()` or application defaults. Class-level usage and placement on other methods are rejected during discovery. Command-line overrides take precedence independently. Configure a non-`sync` connection and a running worker for background execution; see [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/#queue-a-manual-run).
 
 Jobs already queued or running for the same finding class are skipped using Laravel's unique-job lock. A dispatch failure releases that job's lock so another run can retry.
 
