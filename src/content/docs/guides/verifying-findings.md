@@ -10,6 +10,7 @@ Verification rechecks an existing finding against current application data and r
 - [Verification and detection](#verification-and-detection)
 - [The CanVerify contract](#the-canverify-contract)
 - [Return a boolean](#return-a-boolean)
+- [Verify a record with Artisan](#verify-a-record-with-artisan)
 - [Access the model and context](#access-the-model-and-context)
 - [Return a container-invoked callback](#return-a-container-invoked-callback)
 - [Use a dedicated verifier class](#use-a-dedicated-verifier-class)
@@ -93,6 +94,29 @@ $verified = DataHealth::verify($record);
 ```
 
 Calling the facade ensures the record status is updated after successful verification. Calling `$finding->verify()` directly returns the check result but does not update its `FindingRecord`.
+
+## Verify a record with Artisan
+
+Run verification synchronously for a persisted finding record:
+
+```bash
+php artisan verify 1
+```
+
+The required `id` argument is the `FindingRecord` ID from `data_health_findings`.
+Use the record ID, rather than the affected model's ID or the finding's key.
+The finding must implement `CanVerify`.
+
+The command calls the Data Health manager, which evaluates the finding's
+`verify()` return value. It supports booleans, callables invoked through Laravel's
+container, and `Verifier` handler classes resolved through the container.
+
+| Outcome | Output | Record status | Exit code |
+| --- | --- | --- | --- |
+| `true` | `Finding record 1 verified.` | Becomes `resolved`. | `0` |
+| `false` | `Finding record 1 could not be verified.` | Remains unchanged. | `1` |
+| Missing record | `Finding record 1 was not found.` | No record is updated. | `1` |
+| Unsupported action or exception | The exception message. | No success status update is applied. | `1` |
 
 ## Access the model and context
 

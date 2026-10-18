@@ -9,6 +9,7 @@ Resolution performs an application-specific correction and marks the finding rec
 
 - [Resolution and verification](#resolution-and-verification)
 - [The CanResolve contract](#the-canresolve-contract)
+- [Resolve a record with Artisan](#resolve-a-record-with-artisan)
 - [Return a boolean](#return-a-boolean)
 - [Return a container-invoked callback](#return-a-container-invoked-callback)
 - [Use a dedicated resolver class](#use-a-dedicated-resolver-class)
@@ -67,6 +68,29 @@ $resolved = DataHealth::resolve($record);
 ```
 
 Calling `$finding->resolve()` directly performs only the finding's application logic and does not update its record status.
+
+## Resolve a record with Artisan
+
+Run resolution synchronously for a persisted finding record:
+
+```bash
+php artisan resolve 1
+```
+
+The required `id` argument is the `FindingRecord` ID from `data_health_findings`.
+Use the record ID, rather than the affected model's ID or the finding's key.
+The finding must implement `CanResolve`.
+
+The command calls the Data Health manager, which evaluates the finding's
+`resolve()` return value. It supports booleans, callables invoked through Laravel's
+container, and `Resolver` handler classes resolved through the container.
+
+| Outcome | Output | Record status | Exit code |
+| --- | --- | --- | --- |
+| `true` | `Finding record 1 resolved.` | Becomes `resolved`. | `0` |
+| `false` | `Finding record 1 could not be resolved.` | Remains unchanged. | `1` |
+| Missing record | `Finding record 1 was not found.` | No record is updated. | `1` |
+| Unsupported action or exception | The exception message. | No success status update is applied. | `1` |
 
 ## Return a boolean
 
