@@ -5,6 +5,8 @@ description: Generate finding classes with Artisan and configure their default c
 
 Use `health:make:finding` to create a finding class with the interfaces, method placeholders, and metadata needed for its workflow.
 
+This command reference is part of the [CLI documentation](/data-health-docs/cli/overview/). Generation writes a class file; use the [detection command](/data-health-docs/cli/detect/) after implementing it.
+
 ## Contents
 
 - [Generate a finding](#generate-a-finding)

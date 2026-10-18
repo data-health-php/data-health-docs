@@ -223,7 +223,7 @@ Finding records use the `DataHealth\Enums\RecordStatus` enum:
 
 Verification and resolution mark a record as resolved only when the finding operation returns `true`. A `false` result leaves its current status unchanged.
 
-The `last_detected_at` timestamp answers when the problem was most recently observed, while `created_at` records when this finding identity first appeared.
+The `last_detected_at` timestamp answers when the problem was most recently observed, while `created_at` records when this finding identity first appeared. Use the [CLI Record Browser](/data-health-docs/cli/records/) to inspect these records, run verification or resolution, or change their status manually.
 
 ## Reconstructing a finding
 

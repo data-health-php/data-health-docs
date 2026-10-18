@@ -36,12 +36,24 @@ export default defineConfig({
 				{
 					label: 'Guides',
 					items: [
-						{ label: 'Generating Finding Classes', slug: 'guides/generating-finding-classes' },
 						{ label: 'Detecting Problems', slug: 'guides/detecting-problems' },
 						{ label: 'Context', slug: 'guides/context' },
 						{ label: 'Verifying Findings', slug: 'guides/verifying-findings' },
 						{ label: 'Resolving Findings', slug: 'guides/resolving-findings' },
 						{ label: 'Metadata and Worklists', slug: 'guides/metadata-and-worklists' },
+					],
+				},
+				{
+					label: 'CLI',
+					items: [
+						{ label: 'Overview', slug: 'cli/overview' },
+						{ label: 'Main Menu', slug: 'cli/interactive-suite' },
+						{ label: 'Finding Generator', slug: 'guides/generating-finding-classes' },
+						{ label: 'Detection', slug: 'cli/detect' },
+						{ label: 'Record Browser', slug: 'cli/records' },
+						{ label: 'Verification', slug: 'cli/verify' },
+						{ label: 'Resolution', slug: 'cli/resolve' },
+						{ label: 'Automation and Exit Codes', slug: 'cli/automation' },
 					],
 				},
 				{

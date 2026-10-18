@@ -141,13 +141,15 @@ $order->save();
 
 ## Run detection
 
+The command below runs immediately with `-n`. Omit that flag in a terminal to choose findings interactively. See [CLI Overview](/data-health-docs/cli/overview/) for the complete command suite.
+
 From another terminal in your Laravel application, run this finding through Artisan:
 
 ```bash
-php artisan health:detect PaidOrderMarkedPending
+php artisan health:detect PaidOrderMarkedPending -n
 ```
 
-The command runs detection synchronously and reports `Completed: PaidOrderMarkedPending` followed by a summary. Omit the finding name to run all discovered `CanDetect` findings. Use `--async` to queue a run; see [Detecting Problems](/data-health-docs/guides/detecting-problems/#run-detection-manually) for selection, exclusions, and queue routing.
+The command runs detection synchronously and reports `Completed: PaidOrderMarkedPending` followed by a summary. Omit the finding name to run all discovered `CanDetect` findings. Use `--async` to queue a run; see the [Detection command](/data-health-docs/cli/detect/) for selection, exclusions, and queue routing.
 
 You can also call the finding's detection method in the Tinker session:
 
@@ -183,7 +185,7 @@ $record->context;
 // []
 ```
 
-The record remains linked to its order through a polymorphic Eloquent relationship. Its active status means that the inconsistency still requires attention.
+The record remains linked to its order through a polymorphic Eloquent relationship. Its active status means that the inconsistency still requires attention. To inspect it from a terminal, run `php artisan health:records`; see [Record Browser](/data-health-docs/cli/records/) for filters, details, and actions.
 
 ## Verify an external correction
 

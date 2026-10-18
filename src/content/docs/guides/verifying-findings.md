@@ -97,26 +97,13 @@ Calling the facade ensures the record status is updated after successful verific
 
 ## Verify a record with Artisan
 
-Run verification synchronously for a persisted finding record:
-
 ```bash
 php artisan verify 1
 ```
 
-The required `id` argument is the `FindingRecord` ID from `data_health_findings`.
-Use the record ID, rather than the affected model's ID or the finding's key.
-The finding must implement `CanVerify`.
+The ID identifies a persisted finding record. `health:verify` is an equivalent alias. See [the verify command reference](/data-health-docs/cli/verify/) for contracts, result evaluation, output, and exit codes.
 
-The command calls the Data Health manager, which evaluates the finding's
-`verify()` return value. It supports booleans, callables invoked through Laravel's
-container, and `Verifier` handler classes resolved through the container.
-
-| Outcome | Output | Record status | Exit code |
-| --- | --- | --- | --- |
-| `true` | `Finding record 1 verified.` | Becomes `resolved`. | `0` |
-| `false` | `Finding record 1 could not be verified.` | Remains unchanged. | `1` |
-| Missing record | `Finding record 1 was not found.` | No record is updated. | `1` |
-| Unsupported action or exception | The exception message. | No success status update is applied. | `1` |
+To select records in a terminal, run `php artisan health:records` and press `v` on checked rows or the highlighted row. See [Record Browser](/data-health-docs/cli/records/#keyboard-controls) for the full controls.
 
 ## Access the model and context
 

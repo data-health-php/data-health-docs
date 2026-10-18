@@ -192,64 +192,23 @@ Use `CanVerify` when an existing finding can determine that its underlying probl
 
 ## Run detection manually
 
-Run every discovered finding implementing `CanDetect` from Artisan:
-
 ```bash
-php artisan health:detect
+php artisan health:detect PaidOrderMarkedPending -n
 ```
 
-The command runs detection synchronously by default. It includes findings without `Scheduled` and ignores cron timing and `data-health.scheduler.enabled`. An `Async` attribute does not queue a synchronous command run.
+Without `-n`, a terminal session opens finding selection automatically. Piped or redirected runs execute without prompting. The [Detection command reference](/data-health-docs/cli/detect/) covers every argument, option, queue override, and progress behavior.
 
 ### Command parameters
 
-| Parameter | Behavior |
-| --- | --- |
-| `findings...` | Optional finding keys or fully qualified class names. Omit to run all detectable findings. |
-| `--except=...` | Exclude a finding by key or fully qualified class name. Repeat for multiple exclusions. |
-| `--async` | Dispatch one unique detection job per selected finding. |
-| `--queue=...` | Override the detection queue; requires `--async` and a non-empty value. |
-| `--connection=...` | Override the queue connection; requires `--async` and a non-empty value. |
-
-Select one or more findings by their registered keys or class names:
-
-```bash
-php artisan health:detect PaidOrderMarkedPending MissingRequiredDocument
-php artisan health:detect 'App\DataHealth\PaidOrderMarkedPending'
-```
-
-An explicit `Key` attribute supplies the registered key; otherwise the class basename is used. Exclusions take precedence over explicit selections, and duplicate selections run once:
-
-```bash
-php artisan health:detect --except=ExpensiveFinding --except=RemoteServiceFinding
-```
-
-All selectors, including exclusions, must resolve to discovered findings implementing `CanDetect`. The command validates every selector before any detection or dispatch begins. Unknown or non-detectable findings cause a nonzero exit code without running the selection.
+Use finding keys or class names to select candidates and `--except` to exclude them. See [Detection arguments and options](/data-health-docs/cli/detect/#arguments-and-options) for the complete reference.
 
 ### Queue a manual run
 
-```bash
-php artisan health:detect --async
-php artisan health:detect PaidOrderMarkedPending --async --queue=data-health --connection=redis
-```
-
-With `--async`, every selected finding is queued, including findings without `Async` or `Scheduled`. Queue routing uses each finding's `Async` attribute when present, then the application's defaults. The `--queue` and `--connection` options override those values independently.
-
-Use a non-`sync` connection and a worker consuming the selected queue for background execution. Queued or running detections for the same finding class are skipped using Laravel's unique-job lock. See [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/#queue-a-manual-run) for worker and cache setup.
+Add `--async` to dispatch detection jobs and optionally override their queue and connection. See [Queue a run](/data-health-docs/cli/detect/#queue-a-run) for command options and [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) for worker setup.
 
 ### Output and exit status
 
-The command reports each completed, queued, skipped, or failed detection and prints a summary:
-
-```text
-Completed: PaidOrderMarkedPending
-Detection summary: 1 completed, 0 skipped, 0 failed.
-```
-
-The summary counts finding classes processed, rather than the number of records reported by their `detect()` methods. Individual detection or dispatch failures are reported while the remaining findings continue. Any failure produces a nonzero exit code; an empty selection succeeds with `No detectable findings selected.`
-
-For async runs, success confirms dispatch or that a job was already queued or running. It does not confirm that the worker completed detection. A failed dispatch releases its uniqueness lock so a later command can retry.
-
-Both command execution and queued jobs invoke callable detection results through Laravel's container. View the complete command help with `php artisan help health:detect`.
+The command reports each finding and a final summary. See [Progress and output](/data-health-docs/cli/detect/#progress-and-output) for what those counts measure and [Exit status](/data-health-docs/cli/detect/#exit-status) for success and failure behavior.
 
 ### Call detection from PHP
 

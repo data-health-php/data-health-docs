@@ -49,6 +49,7 @@ Documentation pages live in `src/content/docs` and are organized as:
 - `start-here` — installation and the first end-to-end workflow;
 - `core-concepts` — finding identity, records, lifecycle, and discovery;
 - `guides` — development and operational workflows;
+- `cli` — command entrypoints, interactive controls, filtering, queues, and automation;
 - `filament` — optional interface installation, authorization, and features; and
 - `reference` — configuration, public APIs, database schema, and troubleshooting.
 

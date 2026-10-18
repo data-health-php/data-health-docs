@@ -95,7 +95,7 @@ Finding arguments and exclusions accept registered keys or fully qualified class
 
 `--queue` and `--connection` require `--async` and non-empty values. After validation, individual detection or dispatch failures do not stop the remaining findings. Read the per-finding errors and summary; any failure produces a nonzero exit code. The completed or queued count measures finding classes processed, rather than finding records created.
 
-With `--async`, already queued or running detections are skipped successfully. A successful dispatch does not establish that the worker completed detection; check the selected queue, workers, and failed jobs. See [Detecting Problems](/data-health-docs/guides/detecting-problems/#run-detection-manually) for command examples.
+With `--async`, already queued or running detections are skipped successfully. A successful dispatch does not establish that the worker completed detection; check the selected queue, workers, and failed jobs. See the [Detection command](/data-health-docs/cli/detect/) for selectors and interactive defaults, and [Automation and Exit Codes](/data-health-docs/cli/automation/) for scripting behavior.
 
 ## Scheduled detection does not run
 

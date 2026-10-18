@@ -71,26 +71,15 @@ Calling `$finding->resolve()` directly performs only the finding's application l
 
 ## Resolve a record with Artisan
 
-Run resolution synchronously for a persisted finding record:
-
 ```bash
 php artisan resolve 1
 ```
 
-The required `id` argument is the `FindingRecord` ID from `data_health_findings`.
-Use the record ID, rather than the affected model's ID or the finding's key.
-The finding must implement `CanResolve`.
+The ID identifies a persisted finding record. `health:resolve` is an equivalent alias. See [the resolve command reference](/data-health-docs/cli/resolve/) for contracts, result evaluation, output, and exit codes.
 
-The command calls the Data Health manager, which evaluates the finding's
-`resolve()` return value. It supports booleans, callables invoked through Laravel's
-container, and `Resolver` handler classes resolved through the container.
+To select records in a terminal, run `php artisan health:records` and press `r` on checked rows or the highlighted row. See [Record Browser](/data-health-docs/cli/records/#keyboard-controls) for the full controls.
 
-| Outcome | Output | Record status | Exit code |
-| --- | --- | --- | --- |
-| `true` | `Finding record 1 resolved.` | Becomes `resolved`. | `0` |
-| `false` | `Finding record 1 could not be resolved.` | Remains unchanged. | `1` |
-| Missing record | `Finding record 1 was not found.` | No record is updated. | `1` |
-| Unsupported action or exception | The exception message. | No success status update is applied. | `1` |
+The `s` key in the browser marks a record solved directly; it does not execute the resolver. Use `r` or the `resolve` command when correction logic should run.
 
 ## Return a boolean
 

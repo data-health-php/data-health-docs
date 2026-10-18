@@ -202,22 +202,22 @@ Long-running checks should use controlled batches rather than relying on a very 
 
 ## Queue a manual run
 
-Queue all detectable findings immediately, without waiting for their schedules:
+Queue all detectable findings immediately, without waiting for their schedules. Use `-n` to dispatch without an interactive selector:
 
 ```bash
-php artisan health:detect --async
+php artisan health:detect --async -n
 ```
 
 This includes findings without `Scheduled` or `Async` and works when `data-health.scheduler.enabled` is `false`. Routing uses each finding's `Async` attribute when present and otherwise falls back to application defaults. Override either routing value for this run:
 
 ```bash
-php artisan health:detect PaidOrderMarkedPending --async --queue=data-health --connection=redis
+php artisan health:detect PaidOrderMarkedPending --async --queue=data-health --connection=redis -n
 php artisan queue:work redis --queue=data-health
 ```
 
 The command uses the same per-finding unique-job lock as scheduled asynchronous detection. Pending or running jobs are reported as skipped. Its exit status covers dispatch failures; inspect worker logs and failed jobs for failures during background detection.
 
-Without `--async`, the command runs synchronously even for findings marked `Async`. Manual synchronous runs do not acquire the scheduler's overlap lock or the queued-job uniqueness lock. See [Detecting Problems](/data-health-docs/guides/detecting-problems/#run-detection-manually) for selectors, exclusions, output, and exit status.
+Without `--async`, the command runs synchronously even for findings marked `Async`. Manual synchronous runs do not acquire the scheduler's overlap lock or the queued-job uniqueness lock. See the [Detection command](/data-health-docs/cli/detect/) for selectors, exclusions, and output, and [Automation and Exit Codes](/data-health-docs/cli/automation/) for scripting and dispatch status.
 
 ## Unique detection jobs
 

@@ -127,7 +127,7 @@ The Filament package is a presentation and interaction layer over Data Health. T
 - scheduling detection; and
 - cleaning up records when affected models are deleted.
 
-Both panel and standalone interfaces operate on the same `FindingRecord` models. Adding or removing the Filament interface does not change finding identity or detection behavior.
+Both panel and standalone interfaces operate on the same `FindingRecord` models. Adding or removing the Filament interface does not change finding identity or detection behavior. The core package also provides a [CLI](/data-health-docs/cli/overview/) for detection and record management from a terminal.
 
 ## Choose an integration approach
 
