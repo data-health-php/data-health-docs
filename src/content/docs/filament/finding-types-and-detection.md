@@ -3,81 +3,21 @@ title: Finding Types and Detection
 description: Inspect discovered finding classes and run supported detection from Filament.
 ---
 
-The Finding types page is a live catalogue of the finding classes discovered by the core package, including their capabilities and manual detection actions.
+The **Finding types** page lists classes discovered by the core package, even before they produce records. Each row shows the finding key, description, worklist, urgency, verification and resolution capabilities, and scheduled status.
 
-## Contents
-
-- [The finding type catalogue](#the-finding-type-catalogue)
-- [Information shown](#information-shown)
-- [Search finding types](#search-finding-types)
-- [Detectable findings](#detectable-findings)
-- [Run detection manually](#run-detection-manually)
-- [Detection results](#detection-results)
-- [Callable detection](#callable-detection)
-- [Failures and long-running checks](#failures-and-long-running-checks)
-- [Scheduled and manual detection](#scheduled-and-manual-detection)
-- [Use the standalone table](#use-the-standalone-table)
-
-## The finding type catalogue
-
-Registering `DataHealthPlugin` adds the **Finding types** page after the Finding records resource in the configured navigation group.
-
-Unlike the records resource, this page does not query persisted occurrences. It reads the finding classes currently discovered by Data Health and describes their deployed capabilities.
-
-Use it to confirm discovery, review available actions, check which findings are scheduled, or run a detector before any records exist. The table is not paginated because it represents registered types rather than database records.
-
-## Information shown
-
-Each row represents one finding class and includes its stable key, description, worklist, urgency, verification and resolution capabilities, and scheduled status.
-
-Missing descriptions and worklists use neutral placeholders, while findings without an urgency attribute display the normal default.
-
-The catalogue also knows whether a finding supports detection, asynchronous scheduling, and automatic resolution, although the table emphasizes the capabilities most useful to operators.
-
-## Search finding types
-
-Search matches the finding key, fully qualified class name, and description without case sensitivity.
-
-Search by technical key when debugging discovery, or use description terms when operators know the business problem but not its class name.
-
-Worklist and urgency are displayed but are not separate catalogue filters. Use Finding records to filter persisted occurrences by those fields.
-
-## Detectable findings
-
-The detect action appears only when a class implements `CanDetect`:
-
-```php
-use DataHealth\Contracts\CanDetect;
-use DataHealth\Finding;
-
-class PaidOrderMarkedPending extends Finding implements CanDetect
-{
-    public static function detect(): null
-    {
-        // ...
-
-        return null;
-    }
-}
-```
-
-A finding may still appear without detection support. It can be reported directly by application code and may support verification or resolution.
+Search matches keys, fully qualified class names, and descriptions without case sensitivity. Worklist and urgency have no separate catalogue filters.
 
 ## Run detection manually
 
-Select the row's detect action and confirm the dialog. If `detect()` has a method-level `Description`, the dialog displays it so the operator knows what the scan will do.
+Classes implementing `CanDetect` have a **Detect** action. Confirm the dialog to run the detector; a method-level `Description` supplies the dialog text when available. Findings without `CanDetect` still appear in the catalogue and can be reported by application code.
 
-Detection executes synchronously in the Livewire request and calls the same method used by application code. It does not change the finding's schedule or create a separate manual configuration.
+Detection runs synchronously in the Livewire request. It does not honor `Async` routing or change the finding's schedule. The Scheduled indicator reflects the `Scheduled` attribute, not whether cron or queue workers are running.
 
-## Detection results
-
-After successful completion, Filament displays a **Detection complete** notification. Return `null` by default to complete without a count. An optional integer result adds a correctly pluralized count such as `1 finding detected` or `12 findings detected`.
-
-When returning a count, use the number of findings reported, rather than the number of models scanned.
+A successful run shows **Detection complete**. Return `null` for no count, or an integer to report the number of findings detected, such as `12 findings detected`.
 
 ## Callable detection
 
-Manual detection supports the callable return type allowed by `CanDetect`. Filament invokes the callable through Laravel's container:
+Returned callables are invoked through Laravel's container, allowing dependency injection:
 
 ```php
 public static function detect(): callable
@@ -90,32 +30,14 @@ public static function detect(): callable
 }
 ```
 
-Callable parameters may use container-resolved dependencies. The `null` result completes without a numeric count.
-
-Core manual, scheduled, and queued detection also invoke returned callables through Laravel's container. Core detection additionally resolves `Detector` class strings; Filament manual detection currently does not support that form and does not honor `Async` routing. Manual Filament execution remains synchronous in the request.
+Filament manual detection currently does not support returned `Detector` class strings, which core detection supports.
 
 ## Failures and long-running checks
 
-If detection throws, the success notification is not sent and the exception follows the application's Filament and Laravel error handling. Findings reported before the exception remain persisted.
+Exceptions follow application error handling and prevent the success notification. Findings reported before an exception remain persisted.
 
-Avoid unbounded scans that can exceed web request timeouts. Prefer database chunking, persistent cursor batches, scheduled asynchronous detection, or a custom action that dispatches application-owned work.
+Keep manual scans within web request limits. For longer work, use [scheduled asynchronous detection](/data-health-docs/guides/scheduling-and-queues/) or an application-owned action that dispatches a job. See [Large Datasets](/data-health-docs/guides/large-datasets/) for batching patterns.
 
-See [Large Datasets](/data-health-docs/guides/large-datasets/) and [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/).
+Manual and scheduled detection use the same finding identities, so stable keys, models, and context prevent duplicate records.
 
-## Scheduled and manual detection
-
-Both paths call the same method and produce the same finding identities. Running both does not create duplicates when key, model, and context remain stable.
-
-The Scheduled indicator reflects the `Scheduled` attribute. It does not prove that system cron is running, cache locks work, or a queue worker is consuming asynchronous jobs.
-
-## Use the standalone table
-
-Render the same catalogue outside a panel:
-
-```blade
-<livewire:data-health-filament::finding-types-table />
-```
-
-The standalone table includes the same search, capability columns, confirmation dialog, and detection action. Protect the containing route because the component adds no authorization.
-
-Continue with [Standalone Components](/data-health-docs/filament/standalone-components/) for setup, or [Managing Findings](/data-health-docs/filament/managing-findings/) to work with detected records.
+To embed this catalogue outside a panel, use the [standalone finding-types table](/data-health-docs/filament/standalone-components/#available-components).

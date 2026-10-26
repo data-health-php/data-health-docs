@@ -222,7 +222,7 @@ Use the action's corresponding capability as the first check:
 
 Confirm that `DataHealthPlugin::make()` is registered on the current panel. For standalone components, confirm that the component is rendered inside a working Filament and Livewire installation.
 
-The package does not provide application-specific authorization. If actions must be restricted, apply the panel, resource, middleware, and standalone-component authorization described in [Authorization](/data-health-docs/filament/authorization/).
+See [Managing Findings](/data-health-docs/filament/managing-findings/#record-actions) for action availability and behavior.
 
 ## Affected-model links are missing
 

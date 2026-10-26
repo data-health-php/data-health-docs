@@ -69,7 +69,6 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', slug: 'filament/overview' },
 						{ label: 'Installation', slug: 'filament/installation' },
-						{ label: 'Authorization', slug: 'filament/authorization' },
 						{ label: 'Managing Findings', slug: 'filament/managing-findings' },
 						{ label: 'Finding Types and Detection', slug: 'filament/finding-types-and-detection' },
 						{ label: 'Standalone Components', slug: 'filament/standalone-components' },

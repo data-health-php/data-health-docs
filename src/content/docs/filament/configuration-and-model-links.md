@@ -3,34 +3,15 @@ title: Configuration and Model Links
 description: Configure Filament navigation, polling, assignees, and affected-model destinations.
 ---
 
-The optional configuration file controls where Data Health appears, how statistics refresh, who findings may be assigned to, and where affected-model links lead.
+## Configuration defaults
 
-## Contents
-
-- [Publish configuration](#publish-configuration)
-- [Default options](#default-options)
-- [Configure navigation](#configure-navigation)
-- [Configure statistics polling](#configure-statistics-polling)
-- [Configure assignees](#configure-assignees)
-- [Restrict assignee options](#restrict-assignee-options)
-- [Link to affected models](#link-to-affected-models)
-- [Map models to named routes](#map-models-to-named-routes)
-- [Create a custom URL resolver](#create-a-custom-url-resolver)
-- [Understand URL precedence](#understand-url-precedence)
-- [Use the Filament resource fallback](#use-the-filament-resource-fallback)
-- [Cache configuration safely](#cache-configuration-safely)
-
-## Publish configuration
-
-Data Health Filament loads its defaults without publishing. Create an application-owned file when customization is needed:
+Publish `config/data-health-filament.php` when customization is needed:
 
 ```bash
 php artisan vendor:publish --tag=data-health-filament-config
 ```
 
-This creates `config/data-health-filament.php`.
-
-## Default options
+The defaults apply to all panels and standalone components:
 
 ```php
 return [
@@ -43,44 +24,32 @@ return [
 ];
 ```
 
-These options apply to every panel and standalone component using the package; configuration is not panel-specific.
-
 ## Configure navigation
-
-Change the navigation group and base sort position:
 
 ```php
 'navigation_group' => 'Operations',
 'navigation_sort' => 50,
 ```
 
-Finding records uses the configured position. Finding types uses the next position so the entries remain adjacent. Filament still controls where the navigation group appears relative to other groups.
+Finding records uses the configured sort position; Finding types uses the next position. Filament controls the group's placement relative to other groups.
 
 ## Configure statistics polling
 
-Polling is disabled by default:
-
-```php
-'polling_interval' => null,
-```
-
-Set a Filament-compatible interval to refresh counts:
+Polling is disabled by default. Set a Filament-compatible interval to refresh statistics:
 
 ```php
 'polling_interval' => '10s',
 ```
 
-Each refresh counts active, immediate-active, resolved, and ignored records. Balance freshness against the cost of repeated count queries.
+Each refresh runs four count queries. Choose an interval appropriate for the dataset, or use `null` to disable polling.
 
 ## Configure assignees
 
-Assignment is hidden until `assignee_types` names an invokable provider:
+Assignment is hidden until `assignee_types` names an invokable provider returning Filament `MorphToSelect\Type` instances:
 
 ```php
 'assignee_types' => App\DataHealth\AssigneeTypes::class,
 ```
-
-The provider returns Filament `MorphToSelect\Type` instances:
 
 ```php
 namespace App\DataHealth;
@@ -102,11 +71,7 @@ final class AssigneeTypes
 }
 ```
 
-The assign action then appears in panel and standalone tables and stores the selected model's morph type and ID. The provider must be an existing, invokable class and return only `Type` instances.
-
-## Restrict assignee options
-
-Use native Filament type configuration to restrict available records:
+To restrict available records, configure the type's options query:
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
@@ -118,17 +83,19 @@ Type::make(User::class)
     );
 ```
 
-Types also support search columns and custom labels. Restricting options improves usability but does not authorize who may assign findings.
+Types also support search columns and custom labels. Assigning stores the selected model's morph type and ID on the finding record.
 
 ## Link to affected models
 
-The Model column identifies the affected record by class basename and ID. When a URL can be resolved, it links operators to that model's detail page.
+The Model column links to the affected record using the first usable destination:
 
-Links work in panel and standalone tables. A deleted model or unresolved destination produces an unlinked label.
+1. a named-route mapping for the model class or stored morph type;
+2. a custom URL resolver;
+3. the current panel's model-resource view page, if it exists and permits viewing the record.
 
-## Map models to named routes
+Missing routes fall through to the next option. Deleted models or unresolved destinations remain unlinked. Outside a panel, configure a route or resolver because the resource fallback is unavailable.
 
-Map model classes to application route names:
+### Map models to named routes
 
 ```php
 use App\Models\Customer;
@@ -140,17 +107,11 @@ use App\Models\Order;
 ],
 ```
 
-The model is passed as the first positional parameter:
+Mappings also accept stored morph types as keys. The model is passed as the first positional parameter, equivalent to `route('orders.show', [$order])`.
 
-```php
-route('orders.show', [$order]);
-```
+### Create a custom URL resolver
 
-Laravel binding may therefore use `{order}` or another model-specific parameter. Mappings may also use the stored morph type as a key. The route must exist and the model must still be available.
-
-## Create a custom URL resolver
-
-Use an invokable class when a fixed route map is insufficient:
+For destinations beyond a fixed route map, configure an invokable class:
 
 ```php
 'model_view_url_resolver' => App\Support\GetModelViewUrl::class,
@@ -176,33 +137,8 @@ final class GetModelViewUrl
 
 Return a non-empty URL or `null`. Laravel's container creates the resolver, so constructor injection is available.
 
-## Understand URL precedence
-
-The package tries destinations in this order:
-
-1. a valid named-route mapping for the model class or stored morph type;
-2. the custom resolver; and
-3. the current panel's model-resource view page.
-
-The first usable URL wins. A mapping to a missing route falls through to the resolver or panel fallback. If the related model cannot be loaded, no URL is produced.
-
-## Use the Filament resource fallback
-
-Inside a panel, the final fallback asks that panel for the affected model's resource. It is used only when the resource has a `view` page and permits viewing the model.
-
-The URL targets the current panel. Outside a panel there is no fallback, so standalone components need a named route or resolver for model links.
-
 ## Cache configuration safely
 
-Use class names instead of closures:
+Use class names for providers and resolvers. Closures in configuration are incompatible with `php artisan config:cache`.
 
-```php
-'assignee_types' => App\DataHealth\AssigneeTypes::class,
-'model_view_url_resolver' => App\Support\GetModelViewUrl::class,
-```
-
-This keeps `php artisan config:cache` compatible. Runtime URL resolution accepts callables, but closures in configuration cannot be exported safely.
-
-After changing cached configuration, rebuild the cache and restart long-running processes that may retain old values.
-
-Continue with [Authorization](/data-health-docs/filament/authorization/) to protect these capabilities, or [Standalone Components](/data-health-docs/filament/standalone-components/) to embed configured tables outside a panel.
+After changing cached configuration, rebuild the cache and restart long-running processes that retain old values.
