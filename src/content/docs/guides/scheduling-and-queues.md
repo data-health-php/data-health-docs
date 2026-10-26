@@ -8,7 +8,6 @@ Use `Scheduled` on the class to run detection periodically and `Async` on `detec
 ## Contents
 
 - [Execution paths](#execution-paths)
-- [Requirements](#requirements)
 - [Schedule detection](#schedule-detection)
 - [Write cron expressions](#write-cron-expressions)
 - [Enable or disable scheduled detection](#enable-or-disable-scheduled-detection)
@@ -46,14 +45,18 @@ scheduler ──► overlap lock ──► unique job ──► worker ──►
 
 A direct call runs in the current process. Both scheduled paths are registered with Laravel's scheduler and run on one server per occurrence when every scheduler host shares a lock-capable cache. The overlap lock belongs to that scheduler occurrence: without `Async`, the occurrence calls `detect()` directly; with `Async`, it dispatches one job and returns. A unique job prevents another job for the same finding from being dispatched while the first is queued or running, and the queue worker is what calls `detect()`.
 
-## Requirements
+## Schedule detection
 
 A scheduled finding must be discoverable, implement `CanDetect`, define a static `detect()` method, and have a valid `Scheduled` cron expression.
 
+Add `Scheduled` to the finding with a five-field cron expression:
+
 ```php
+use DataHealth\Attributes\Scheduled;
 use DataHealth\Contracts\CanDetect;
 use DataHealth\Finding;
 
+#[Scheduled('*/5 * * * *')]
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
     public static function detect(): null
@@ -65,30 +68,11 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 }
 ```
 
+This finding becomes due every five minutes. Data Health registers it with Laravel's scheduler when the application boots in the console, so you do not need to register each finding in `routes/console.php` or an application service provider.
+
 Manual, scheduled, and queued detection all evaluate the result through `DetectFinding`: integers and `null` need no further action, returned callables are invoked through Laravel's container, and `Detector` class names are resolved through the container before their `detect()` method runs.
 
 See [Detecting Problems](/data-health-docs/guides/detecting-problems/) for query, result, and idempotency guidance before automating a finding.
-
-## Schedule detection
-
-Add `Scheduled` to the finding with a five-field cron expression:
-
-```php
-use DataHealth\Attributes\Scheduled;
-
-#[Scheduled('*/5 * * * *')]
-class PaidOrderMarkedPending extends Finding implements CanDetect
-{
-    public static function detect(): null
-    {
-        // ...
-
-        return null;
-    }
-}
-```
-
-This finding becomes due every five minutes. Data Health registers it with Laravel's scheduler when the application boots in the console, so you do not need to register each finding in `routes/console.php` or an application service provider.
 
 ## Write cron expressions
 
@@ -233,8 +217,6 @@ Run a worker that consumes the selected destination:
 php artisan queue:work redis --queue=data-health
 ```
 
-Long-running checks should use controlled batches rather than relying on a very large worker timeout; see [Large Datasets](/data-health-docs/guides/large-datasets/).
-
 ## Queue a manual run
 
 Queue all detectable findings immediately, without waiting for their schedules. Use `-n` to dispatch without an interactive selector:
@@ -290,6 +272,10 @@ php artisan schedule:work
 ```
 
 When findings use `Async`, operate the corresponding queue workers as separately supervised processes. Deployments should restart long-running scheduler and worker processes so they load new finding classes and application code.
+
+:::tip[Long-running checks]
+Long-running checks should use controlled batches rather than relying on a very large worker timeout; see [Large Datasets](/data-health-docs/guides/large-datasets/).
+:::
 
 Useful operational signals include detection duration, findings reported, job failures, lock contention, queue latency, and the time of the last successful run.
 
