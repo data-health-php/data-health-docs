@@ -3,7 +3,7 @@ title: Console Suite
 description: Find the dedicated CLI command reference and keyboard workflows.
 ---
 
-The console documentation now has its own **CLI** sidebar group. Start with the [CLI Overview](/data-health-docs/cli/overview/) for all entrypoints, aliases, and interactive defaults.
+The console documentation now has its own **CLI** sidebar group. Start with the [CLI Overview](/data-health-docs/cli/overview/) for all entrypoints and interactive defaults.
 
 ## Contents
 

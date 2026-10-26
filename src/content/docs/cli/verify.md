@@ -7,19 +7,18 @@ Check whether a recorded problem no longer applies.
 
 ## Contents
 
-- [Usage and alias](#usage-and-alias)
+- [Usage](#usage)
 - [Requirements and result evaluation](#requirements-and-result-evaluation)
 - [Output and exit codes](#output-and-exit-codes)
 - [Select records in the browser](#select-records-in-the-browser)
 
-## Usage and alias
+## Usage
 
 ```bash
-php artisan verify 1
 php artisan health:verify 1
 ```
 
-Both names execute the same command. The required `id` is the `FindingRecord` ID in `data_health_findings`, rather than the related model ID or a finding key. The command runs synchronously and does not open a selector.
+The required `id` is the `FindingRecord` ID in `data_health_findings`, rather than the related model ID or a finding key. The command runs synchronously and does not open a selector.
 
 ## Requirements and result evaluation
 

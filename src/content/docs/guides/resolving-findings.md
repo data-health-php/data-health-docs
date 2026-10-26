@@ -72,14 +72,14 @@ Calling `$finding->resolve()` directly performs only the finding's application l
 ## Resolve a record with Artisan
 
 ```bash
-php artisan resolve 1
+php artisan health:resolve 1
 ```
 
-The ID identifies a persisted finding record. `health:resolve` is an equivalent alias. See [the resolve command reference](/data-health-docs/cli/resolve/) for contracts, result evaluation, output, and exit codes.
+The ID identifies a persisted finding record. See [the resolve command reference](/data-health-docs/cli/resolve/) for contracts, result evaluation, output, and exit codes.
 
 To select records in a terminal, run `php artisan health:records` and press `r` on checked rows or the highlighted row. See [Record Browser](/data-health-docs/cli/records/#keyboard-controls) for the full controls.
 
-The `s` key in the browser marks a record solved directly; it does not execute the resolver. Use `r` or the `resolve` command when correction logic should run.
+The `s` key in the browser marks a record solved directly; it does not execute the resolver. Use `r` or the `health:resolve` command when correction logic should run.
 
 ## Return a boolean
 

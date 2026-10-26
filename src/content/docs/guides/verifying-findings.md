@@ -98,10 +98,10 @@ Calling the facade ensures the record status is updated after successful verific
 ## Verify a record with Artisan
 
 ```bash
-php artisan verify 1
+php artisan health:verify 1
 ```
 
-The ID identifies a persisted finding record. `health:verify` is an equivalent alias. See [the verify command reference](/data-health-docs/cli/verify/) for contracts, result evaluation, output, and exit codes.
+The ID identifies a persisted finding record. See [the verify command reference](/data-health-docs/cli/verify/) for contracts, result evaluation, output, and exit codes.
 
 To select records in a terminal, run `php artisan health:records` and press `v` on checked rows or the highlighted row. See [Record Browser](/data-health-docs/cli/records/#keyboard-controls) for the full controls.
 

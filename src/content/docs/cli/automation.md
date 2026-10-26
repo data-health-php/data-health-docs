@@ -21,8 +21,8 @@ Use the direct commands with `--no-interaction` (`-n`) for automation:
 php artisan health:detect -n --no-progress
 php artisan health:detect PaidOrderMarkedPending -n --no-progress
 php artisan health:records --status=active --page=1 --per-page=100 -n
-php artisan verify 12 -n
-php artisan resolve 12 -n
+php artisan health:verify 12 -n
+php artisan health:resolve 12 -n
 ```
 
 Detection and record browsing are interactive by default only when both standard input and output are terminals. A pipe or redirected stream disables that automatic interaction. An explicit `-n` keeps the intent stable when a script is later run from a terminal.
@@ -54,8 +54,8 @@ Async progress counts dispatch attempts by finding class. Worker failures follow
 | --- | --- | --- |
 | `health:detect` | `0` when no detection/dispatch fails, including empty selections and skipped unique jobs. | `1` for invalid selectors/options, detection failures, or dispatch failures. |
 | `health:records` | `0` for a printed page, empty results, or a browser closed without failed actions. | `1` for invalid input, database errors, or any failed record action. |
-| `verify ID`, `health:verify ID` | `0` for a final `true`. | `1` for `false`, missing records, unsupported actions, or exceptions. |
-| `resolve ID`, `health:resolve ID` | `0` for a final `true`. | `1` for `false`, missing records, unsupported actions, or exceptions. |
+| `health:verify ID` | `0` for a final `true`. | `1` for `false`, missing records, unsupported actions, or exceptions. |
+| `health:resolve ID` | `0` for a final `true`. | `1` for `false`, missing records, unsupported actions, or exceptions. |
 | `health:make:finding` | `0` when the file is generated. | Nonzero for invalid options, an existing file without `--force`, or file creation failure. |
 | `health` | `0` when closed after successful child operations. | `1` when interaction is disabled or a child operation failed. |
 

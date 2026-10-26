@@ -21,8 +21,8 @@ All commands below run through `php artisan`.
 | `health` | Open the menu for detection and record management. | [Main Menu](/data-health-docs/cli/interactive-suite/) |
 | `health:detect [findings...]` | Detect problems for all or selected finding classes. | [Detection](/data-health-docs/cli/detect/) |
 | `health:records` | Browse records, inspect details, and run batch actions. | [Record Browser](/data-health-docs/cli/records/) |
-| `verify ID` | Verify one finding record; alias: `health:verify ID`. | [Verification](/data-health-docs/cli/verify/) |
-| `resolve ID` | Execute resolution for one finding record; alias: `health:resolve ID`. | [Resolution](/data-health-docs/cli/resolve/) |
+| `health:verify ID` | Verify one finding record. | [Verification](/data-health-docs/cli/verify/) |
+| `health:resolve ID` | Execute resolution for one finding record. | [Resolution](/data-health-docs/cli/resolve/) |
 | `health:make:finding NAME` | Generate a finding class and method placeholders. | [Finding Generator](/data-health-docs/guides/generating-finding-classes/) |
 
 ## Interactive defaults
