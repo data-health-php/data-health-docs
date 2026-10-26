@@ -74,7 +74,7 @@ Detection summary: 1 completed, 0 skipped, 0 failed.
 
 Each finding is reported individually. A failure does not prevent the remaining findings from running. The final summary counts completed or queued, skipped, and failed finding classes.
 
-A detector may return an integer, `null`, a callable, or a class implementing `Detector`. Detection invokes returned callables and resolves detector classes through Laravel's container. The optional integer count is separate from the progress count of finding classes.
+A detector may return an integer, `null`, a callable, or a class implementing `Detector`. Detection invokes returned callables and resolves detector classes through Laravel's container. Core detection discards optional integer results, including results from callbacks and handlers. Progress counts finding classes, rather than reported occurrences. Filament manual detection can display an integer result.
 
 ## Queue a run
 

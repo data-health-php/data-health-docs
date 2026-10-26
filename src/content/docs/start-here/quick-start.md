@@ -54,54 +54,62 @@ use DataHealth\Contracts\CanDetect;
 use DataHealth\Contracts\CanResolve;
 use DataHealth\Contracts\CanVerify;
 use DataHealth\Finding;
+use Illuminate\Support\Facades\DB;
 
 #[Description('A paid order is still marked as pending.')]
-class PaidOrderMarkedPending extends Finding implements CanDetect, CanResolve, CanVerify
+class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, CanResolve
 {
     public static function detect(): null
     {
         Order::query()
             ->whereNotNull('paid_at')
             ->where('status', 'pending')
-            ->get()
-            ->each(function (Order $order): void {
-                self::found($order);
-            });
+            ->eachById(fn (Order $order) => self::found($order));
 
         return null;
     }
 
     public function verify(): bool
     {
-        $order = $this->order()->refresh();
+        $order = $this->model->refresh();
+
+        if (! $order instanceof Order) {
+            throw new \LogicException('Expected an Order model.');
+        }
 
         return $order->paid_at === null || $order->status !== 'pending';
     }
 
     public function resolve(): bool
     {
-        return $this->order()->update([
-            'status' => 'paid',
-        ]);
-    }
+        if (! $this->model instanceof Order) {
+            throw new \LogicException('Expected an Order model.');
+        }
 
-    private function order(): Order
-    {
-        /** @var Order $order */
-        $order = $this->model;
+        return DB::transaction(function (): bool {
+            $order = Order::query()->lockForUpdate()->findOrFail($this->model->getKey());
 
-        return $order;
+            if ($order->paid_at === null || $order->status !== 'pending') {
+                return true;
+            }
+
+            return $order->update(['status' => 'paid']);
+        });
     }
 }
 ```
 
 The `Description` attribute provides a human-readable explanation for interfaces such as Data Health Filament.
 
+The resolver locks and rechecks the current order before updating it. If another process already corrected it or changed it to another valid state, it returns `true` without overwriting that state. Reuse an existing application action when it owns this transition.
+
 The three contracts enable different parts of the lifecycle:
 
 - `CanDetect` allows the class to search for inconsistent orders.
 - `CanVerify` allows an existing record to check whether its problem still applies.
 - `CanResolve` allows the finding to correct the order itself.
+
+Implementing resolution exposes an action; it does not execute automatically. `#[AutoResolve]` separately opts into resolution on first record creation. Assess this capability for every finding, and omit it when a correction requires human judgment.
 
 ## How detection works
 
@@ -114,7 +122,7 @@ The `detect()` method queries only orders matching the unhealthy state and calls
 
 This example does not need additional context because there can be only one instance of this problem per order. Calling `found()` repeatedly for the same order therefore refreshes the existing record instead of creating duplicates.
 
-The method returns `null`; returning a count is optional. Calling `found()` is what creates or refreshes finding records.
+The method returns `null`. Optional counts and delegation are advanced integrations described in the [contract reference](/data-health-docs/reference/attributes-and-contracts/#detection-contract). Calling `found()` is what creates or refreshes finding records.
 
 :::tip
 Defining a finding does not run detection automatically. Run `php artisan health:detect`, call `detect()` yourself, or configure [Scheduling and Queues](/data-health-docs/guides/scheduling-and-queues/) when detection should run periodically.

@@ -26,7 +26,7 @@ Detection searches for current problems and creates or refreshes finding records
 
 For example, detection may report an order because it has a payment timestamp but is still pending. After another process updates the order, verification can confirm that the inconsistency is gone and mark the finding resolved.
 
-Verification should normally be read-only. It observes the affected model and any related systems but does not correct them. Use [Resolving Findings](/data-health-docs/guides/resolving-findings/) when the operation should change application data.
+Verification must leave business data unchanged. It observes the affected model and any related systems but does not correct them. Use [Resolving Findings](/data-health-docs/guides/resolving-findings/) when the operation should change application data. Do not rerun detection from verification: detection reports occurrences and may trigger automatic actions. Share a read-only predicate when detection and verification need the same rule.
 
 | Operation | Starts with | Purpose |
 | --- | --- | --- |
@@ -127,6 +127,8 @@ public function verify(): bool
 ```
 
 This finding was created because the document did not exist, so finding it now means the problem has been fixed.
+
+Validate the expected model type and required context before interpreting the result. Missing keys, malformed values, and an unexpected model indicate invalid input; throw instead of treating them as proof that the problem is gone. A valid historical occurrence that no longer falls within the rule is a different case and may verify successfully.
 
 Persist every stable value needed to identify and recheck an occurrence. See [Context](/data-health-docs/guides/context/) for context design and identity rules.
 

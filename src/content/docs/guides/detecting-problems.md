@@ -7,6 +7,7 @@ Detection is the application-specific process that searches for unhealthy data a
 
 ## Contents
 
+- [Establish the application rule](#establish-the-application-rule)
 - [When to implement detection](#when-to-implement-detection)
 - [The CanDetect contract](#the-candetect-contract)
 - [Write a focused detection query](#write-a-focused-detection-query)
@@ -18,6 +19,35 @@ Detection is the application-specific process that searches for unhealthy data a
 - [Detection does not resolve missing results](#detection-does-not-resolve-missing-results)
 - [Run detection manually](#run-detection-manually)
 - [Test detection behavior](#test-detection-behavior)
+
+## Establish the application rule
+
+Before implementing a finding, establish a concrete invariant from application code
+and requirements. A column name, nullable field, or missing relationship alone does
+not prove that a record is unhealthy.
+
+For each candidate, identify:
+
+| Decision | Evidence to collect |
+| --- | --- |
+| Invariant and scope | The rule and records it applies to, supported by domain actions, services, validation, queries, tests, or documented requirements. |
+| Legitimate exceptions | Historical states, imports, optional relationships, tenant boundaries, and other valid cases. |
+| Occurrence identity | The affected model and stable context needed to distinguish and recheck one occurrence. |
+| Correction | An existing application action that can safely restore the invariant, or the business judgment still required. |
+
+For example, a missing email address is a finding only if the application requires
+email for that customer category. Imported accounts, anonymized customers, or records
+created before a policy change may be legitimate exceptions. Exclude exceptions based
+on application evidence rather than inventing cutoffs or inferring policy from a field name.
+
+If the evidence is insufficient, explain the candidate and missing business decision
+before implementing it. Start with a class extending `Finding` directly and keep its
+lifecycle together. Reuse existing domain services when they own the logic; introduce
+new shared abstractions or schema-wide reflection only for demonstrated needs.
+
+Assess resolution for every finding. Implement it when the application establishes a
+deterministic, safe correction. Otherwise explain the judgment required and omit
+`CanResolve`. Implementing it exposes an action; automatic execution is a separate opt-in.
 
 ## When to implement detection
 
@@ -124,7 +154,7 @@ The context becomes part of finding identity, so each document type produces a s
 
 ## Return a useful result
 
-The `CanDetect` contract permits `int`, `callable`, or `null` results.
+Use inline `detect(): null` for ordinary findings. The full `CanDetect` contract also permits integers, callables, and `Detector` class strings for advanced integrations.
 
 Return `null` by default to keep detection focused on reporting findings:
 
@@ -137,7 +167,7 @@ public static function detect(): null
 }
 ```
 
-An integer count is optional. Return the number of findings reported when a caller needs it, such as for interface feedback or operational telemetry. Counting is not required to create finding records.
+An integer count is optional and does not create finding records. Core command, scheduled, and queued detection discard counts; their progress measures finding classes. Filament manual detection displays a returned integer in its success notification, and direct application callers can consume it. Count occurrences reported, rather than candidate models scanned.
 
 A callable allows a supporting caller to invoke deferred detection through Laravel's container. It should return an integer or `null`:
 
@@ -152,14 +182,16 @@ public static function detect(): callable
 }
 ```
 
-The `health:detect` command, queued `DetectFinding` jobs, and Data Health Filament manual detection invoke callable results through Laravel's container. Direct callers must invoke the returned callable themselves. Synchronous scheduled detection also evaluates callable and detector-class results through `DetectFinding`. Add `Async` only to `detect()` to queue package-managed detection; direct calls remain synchronous. An integer count is optional.
+Core manual, scheduled, and queued detection invoke returned callables through Laravel's container and resolve classes implementing `Detector`, including constructor dependencies. A dedicated detector implements `detect(): ?int` and still reports occurrences with the finding's `found()` method. See [Contracts and delegation](/data-health-docs/reference/attributes-and-contracts/#detection-contract) for an example.
+
+Filament manual detection invokes callables but currently does not resolve `Detector` class strings or honor `Async` routing. Direct PHP callers must evaluate returned callables or handlers themselves. Add `Async` only to `detect()` to queue core package-managed detection; direct calls remain synchronous.
 
 ## Design detection to be repeatable
 
 Production detection should be safe to run more than once. A repeatable detector:
 
 - reports the same identity for the same occurrence;
-- does not modify healthy application data;
+- leaves business-data corrections to resolution (explicit `AutoResolve` may invoke it when `found()` creates a record);
 - does not rely on process-local state from a previous run;
 - can resume after a partial failure without creating duplicates; and
 - limits memory use and external requests appropriately.

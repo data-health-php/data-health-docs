@@ -32,7 +32,9 @@ For a paid order that is still pending:
 
 Resolution is optional. Some findings identify conditions that require human judgment, coordination with another team, or an action Data Health should not automate. Those findings can remain detectable and verifiable without implementing `CanResolve`.
 
-Only add a resolver when the correct outcome is deterministic and the application can perform it safely.
+Assess resolution for every finding. Implement it when application rules establish a deterministic correction that can run safely; otherwise explain the judgment needed and omit `CanResolve`. Reuse existing domain actions or services when they own the transition.
+
+Implementing `resolve()` exposes an action and does not execute it automatically. `#[AutoResolve]` separately opts into execution when a record is first created.
 
 ## The CanResolve contract
 
@@ -57,7 +59,7 @@ The method may return:
 - a callable that returns a boolean; or
 - the class name of an implementation of `Resolver`.
 
-In every form, return `true` only after the corrective operation has completed successfully. Return `false` when the operation completed but could not resolve the problem.
+In every form, return `true` only when the correction has completed successfully or a current-state check confirms the problem is already gone. Return `false` when the operation completed but could not resolve the problem.
 
 Run resolution through the Data Health facade so a successful result also updates the finding record:
 
@@ -87,19 +89,27 @@ Simple corrections can live directly in the finding:
 
 ```php
 use App\Models\Order;
+use Illuminate\Support\Facades\DB;
 
 public function resolve(): bool
 {
-    /** @var Order $order */
-    $order = $this->model;
+    if (! $this->model instanceof Order) {
+        throw new \LogicException('Expected an Order model.');
+    }
 
-    return $order->update([
-        'status' => 'paid',
-    ]);
+    return DB::transaction(function (): bool {
+        $order = Order::query()->lockForUpdate()->findOrFail($this->model->getKey());
+
+        if ($order->paid_at === null || $order->status !== 'pending') {
+            return true;
+        }
+
+        return $order->update(['status' => 'paid']);
+    });
 }
 ```
 
-Eloquent's `update()` returns a boolean, which makes it suitable for a direct resolver when the update itself completely represents success.
+The resolver checks the current order inside a transaction and preserves state changes made after detection. Eloquent's `update()` result is suitable when that update completely represents success; an existing application action should own more involved transitions.
 
 For multi-step corrections, do not return `true` after only the first step. Complete the entire operation, verify its required postconditions when appropriate, and then return the final outcome.
 
@@ -193,36 +203,7 @@ A safe resolver should:
 - avoid destructive guesses when the correct outcome is ambiguous; and
 - record application-specific audit information when required.
 
-For example, a resolver can recheck and lock an order inside a transaction:
-
-```php
-use App\Models\Order;
-use Illuminate\Support\Facades\DB;
-
-public function resolve(): bool
-{
-    /** @var Order $order */
-    $order = $this->model;
-
-    return DB::transaction(function () use ($order): bool {
-        $current = Order::query()
-            ->lockForUpdate()
-            ->findOrFail($order->getKey());
-
-        if ($current->paid_at === null) {
-            return true;
-        }
-
-        if ($current->status !== 'pending') {
-            return true;
-        }
-
-        return $current->update(['status' => 'paid']);
-    });
-}
-```
-
-Returning `true` when the problem has already disappeared makes this resolver safe to retry: its desired postcondition is satisfied even when another process performed the correction first.
+The inline example above rechecks and locks the current order. Returning `true` when the problem has already disappeared makes retries safe and preserves a later valid status. An unexpected model or malformed required context must throw rather than silently succeeding.
 
 External API changes cannot usually share a database transaction. Design those operations around the provider's idempotency features, verify responses explicitly, and avoid marking the finding resolved when the remote outcome is unknown.
 

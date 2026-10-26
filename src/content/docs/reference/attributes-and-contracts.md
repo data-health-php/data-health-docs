@@ -36,6 +36,7 @@ use DataHealth\Contracts\CanResolve;
 use DataHealth\Contracts\CanVerify;
 use DataHealth\Enums\FindingUrgency;
 use DataHealth\Finding;
+use Illuminate\Support\Facades\DB;
 
 #[Key('paid-order-marked-pending')]
 #[Description('A paid order is still marked as pending.')]
@@ -61,17 +62,31 @@ class PaidOrderMarkedPending extends Finding implements CanDetect, CanVerify, Ca
     #[Description('Check whether the order is no longer both paid and pending.')]
     public function verify(): bool
     {
-        $order = $this->model->fresh();
+        $order = $this->model->refresh();
 
-        return $order === null
-            || $order->paid_at === null
-            || $order->status !== 'pending';
+        if (! $order instanceof Order) {
+            throw new \LogicException('Expected an Order model.');
+        }
+
+        return $order->paid_at === null || $order->status !== 'pending';
     }
 
-    #[Description('Mark the order as paid.')]
+    #[Description('Recheck the order and mark it paid if still applicable.')]
     public function resolve(): bool
     {
-        return $this->model->update(['status' => 'paid']);
+        if (! $this->model instanceof Order) {
+            throw new \LogicException('Expected an Order model.');
+        }
+
+        return DB::transaction(function (): bool {
+            $order = Order::query()->lockForUpdate()->findOrFail($this->model->getKey());
+
+            if ($order->paid_at === null || $order->status !== 'pending') {
+                return true;
+            }
+
+            return $order->update(['status' => 'paid']);
+        });
     }
 }
 ```
@@ -123,16 +138,49 @@ Use a globally unique, permanent `Key` if the class may be renamed or if classes
 Implement `DataHealth\Contracts\CanDetect` to make a finding detectable:
 
 ```php
-public static function detect(): int|callable|null;
+public static function detect(): int|callable|string|null;
 ```
 
 | Return value | Meaning |
 | --- | --- |
-| `null` | Default for detection that does not need to report a count. |
-| `int` | Optional number of findings detected; useful for manual UI feedback. |
+| `null` | Recommended inline result after reporting occurrences. |
+| `int` | Optional count of occurrences reported. Core execution discards it; Filament manual detection displays it. |
 | `callable` | Work returning an integer or `null`, invoked through Laravel's container by `health:detect`, queued `DetectFinding` jobs, and Filament manual detection. Synchronous scheduled detection invokes it through the container too. |
+| `class-string<Detector>` | A container-resolved detector for core manual, scheduled, and queued detection. Filament manual detection currently does not resolve this form. |
 
 The method is responsible for querying the source and calling `YourFinding::found(...)` for each problem. Returning a number alone does not create records.
+
+Inline `detect(): null` is the ordinary implementation. Keep corrections in resolution;
+explicit `AutoResolve` can invoke a correction when `found()` creates a new record.
+Core detection evaluates returned callables and handlers, while direct PHP calls only
+return them and leave evaluation to the caller. Filament manual detection also does
+not honor `Async` routing.
+
+A dedicated detector implements `DataHealth\Contracts\Detector`:
+
+```php
+use App\Models\Order;
+use DataHealth\Contracts\Detector;
+
+class PaidOrderDetector implements Detector
+{
+    public function detect(): null
+    {
+        Order::query()
+            ->whereNotNull('paid_at')
+            ->where('status', 'pending')
+            ->eachById(fn (Order $order) => PaidOrderMarkedPending::found($order));
+
+        return null;
+    }
+}
+```
+
+Return `PaidOrderDetector::class` from the finding's `detect(): string` method to
+delegate. The `Detector` interface accepts `detect(): ?int`; returning `null` is the
+recommended narrower implementation. Existing integer and callable integrations
+remain supported.
+
 
 ## Verification contracts
 
@@ -156,6 +204,8 @@ use DataHealth\Models\FindingRecord;
 public function verify(FindingRecord $record): bool;
 ```
 
+Verification checks one occurrence using its model, identifying context, and relevant related data. Do not change business data or rerun detection; shared read-only predicates are appropriate. Throw for an unexpected model, invalid required context, or an unavailable check.
+
 When the final result is `true`, Data Health changes the record status to `resolved`. A `false` result leaves the current status unchanged.
 
 `AutoVerify` dispatches this verification after a new record's transaction commits. It runs only for newly created records and only while the record remains active. Use `#[AutoVerify(2)]` to delay the queued check by two minutes; asynchronous and delayed execution requires a configured queue worker.
@@ -175,6 +225,8 @@ use DataHealth\Models\FindingRecord;
 
 public function resolve(FindingRecord $record): bool;
 ```
+
+Resolution rechecks this occurrence and applies a known correction through application logic. Return `true` when corrected or already gone, `false` for an expected inability to correct it, and throw for invalid input or operational failures. Implementing `CanResolve` exposes an action; `AutoResolve` separately opts into immediate execution on first record creation.
 
 A final `true` result marks the record `resolved`; `false` leaves its status unchanged. Exceptions are not converted to `false` and should be handled by the application where appropriate.
 

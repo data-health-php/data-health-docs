@@ -26,6 +26,18 @@ Data Health lets you express these application-specific rules as **finding class
 | --- | --- |
 | Defines what unhealthy data looks like and how it can be checked or corrected. | Records, deduplicates, and tracks every discovered occurrence. |
 
+| Operation | Scope and responsibility | Recommended inline result |
+| --- | --- | --- |
+| `detect()` | Search candidates and report each occurrence with `found()`. | `null` |
+| `verify()` | Recheck one occurrence without changing business data. | `bool` |
+| `resolve()` | Recheck one occurrence and apply a known application correction. | `bool` |
+
+A `true` verification or resolution result marks the finding record resolved.
+Implement resolution when a safe, deterministic correction is established; implementing
+it exposes an action, while automatic resolution requires a separate opt-in.
+For coding agents, load the [bundled guidance](/data-health-docs/start-here/installation/#coding-agents-and-laravel-boost)
+before scanning or generating findings.
+
 Finding classes live in configured directories such as `app/DataHealth`. Data Health discovers them automatically, so each class can focus on the problem it represents instead of registration boilerplate.
 
 ## From rule to tracked findings

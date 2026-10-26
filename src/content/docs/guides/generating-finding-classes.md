@@ -41,10 +41,11 @@ use DataHealth\Finding;
 
 class PaidOrderMarkedPending extends Finding implements CanDetect
 {
-    public static function detect(): int|callable|null
+    public static function detect(): null
     {
-        // Report matching models with static::found($model, $context).
-        return null;
+        // Report each occurrence with static::found($model, $context), then return null.
+        // Leave corrections to resolve(); automatic resolution requires AutoResolve.
+        throw new \LogicException(static::class.'::detect() is not implemented. Replace the generated placeholder.');
     }
 }
 ```
@@ -52,7 +53,7 @@ class PaidOrderMarkedPending extends Finding implements CanDetect
 The command reports the created file path. Implement the detection query and call `static::found($model, $context)` for each occurrence; see [Detecting Problems](/data-health-docs/guides/detecting-problems/) for examples.
 
 :::note
-The command generates a PHP class. It does not run detection or create finding records. Generated detection returns `null`, while generated verification and resolution return `false` until you implement them.
+The command generates a PHP class. It does not run detection or create finding records. Every generated method throws an explicit `LogicException` identifying the unfinished method until you replace its placeholder. Completed inline detection returns `null`; verification and resolution return booleans. Existing generated classes are not rewritten when the package is upgraded.
 :::
 
 ## Choose the default interfaces
@@ -99,11 +100,11 @@ Use `--detect` to request detection explicitly when it is absent from the config
 
 | Option | Interface | Generated method |
 | --- | --- | --- |
-| `--detect` | `DataHealth\Contracts\CanDetect` | `public static function detect(): int\|callable\|null` returning `null`. |
-| `--verify` | `DataHealth\Contracts\CanVerify` | `public function verify(): bool` returning `false`. |
-| `--resolve` | `DataHealth\Contracts\CanResolve` | `public function resolve(): bool` returning `false`. |
+| `--detect` | `DataHealth\Contracts\CanDetect` | `public static function detect(): null` with an unfinished-method exception. |
+| `--verify` | `DataHealth\Contracts\CanVerify` | `public function verify(): bool` with an unfinished-method exception. |
+| `--resolve` | `DataHealth\Contracts\CanResolve` | `public function resolve(): bool` with an unfinished-method exception. |
 
-Implement verification so it returns `true` only when the problem no longer applies, and resolution so it returns `true` only when correction succeeds. See [Verifying Findings](/data-health-docs/guides/verifying-findings/) and [Resolving Findings](/data-health-docs/guides/resolving-findings/).
+Implement verification as a read-only check of this occurrence, without rerunning detection. Return `true` when the problem no longer applies. Resolution rechecks current applicability and returns `true` when corrected or already gone. Remove a capability if the finding does not support it; do not replace its placeholder with a permanent no-op. See [Verifying Findings](/data-health-docs/guides/verifying-findings/) and [Resolving Findings](/data-health-docs/guides/resolving-findings/).
 
 ## Add metadata
 

@@ -13,6 +13,7 @@ Use finding context to persist the details of a problem and give each distinct o
 - [How context affects identity](#how-context-affects-identity)
 - [Deterministic context hashing](#deterministic-context-hashing)
 - [Reconstruct findings with context](#reconstruct-findings-with-context)
+- [Validate model and context](#validate-model-and-context)
 - [Context examples](#context-examples)
 - [Avoid volatile or sensitive values](#avoid-volatile-or-sensitive-values)
 - [Change context safely](#change-context-safely)
@@ -195,6 +196,35 @@ public function verify(): bool
 ```
 
 Persist every value that verification or resolution needs unless it can be obtained reliably from the affected model or another stable source.
+
+## Validate model and context
+
+Model types and required context are part of the application's finding contract.
+Validate them when reconstructing the finding or before an action interprets them:
+
+```php
+use App\Models\Customer;
+
+public function verify(): bool
+{
+    if (! $this->model instanceof Customer) {
+        throw new \LogicException('Expected a Customer model.');
+    }
+
+    $documentType = $this->context['document_type'] ?? null;
+
+    if (! is_string($documentType) || $documentType === '') {
+        throw new \LogicException('Expected a non-empty document_type context value.');
+    }
+
+    return $this->model->documents()->where('type', $documentType)->exists();
+}
+```
+
+Apply any application-specific allowed-value rules too. Do not return `true` because
+the context is missing or the model has an unexpected type. Those conditions prevent
+a reliable check; they do not prove the problem disappeared. A valid occurrence that
+no longer applies, including an established historical exception, may return `true`.
 
 ## Context examples
 

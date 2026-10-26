@@ -92,7 +92,7 @@ public static function detect(): callable
 
 Callable parameters may use container-resolved dependencies. The `null` result completes without a numeric count.
 
-Scheduled Data Health detection does not invoke a returned callable, so use this form only when manual or custom callers are intended.
+Core manual, scheduled, and queued detection also invoke returned callables through Laravel's container. Core detection additionally resolves `Detector` class strings; Filament manual detection currently does not support that form and does not honor `Async` routing. Manual Filament execution remains synchronous in the request.
 
 ## Failures and long-running checks
 

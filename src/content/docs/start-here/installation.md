@@ -11,6 +11,7 @@ Data Health installs like a conventional Laravel package and is discovered autom
 - [Install the core package](#install-the-core-package)
 - [Publish the package resources](#publish-the-package-resources)
 - [Default configuration](#default-configuration)
+- [Coding agents and Laravel Boost](#coding-agents-and-laravel-boost)
 - [Choose an interface](#choose-an-interface)
 
 ## Requirements
@@ -72,6 +73,24 @@ The published `config/data-health.php` starts with these behaviors:
 The discovery directory does not need to exist before installation. You can create it when you define your first finding in the [Quick Start](/data-health-docs/start-here/quick-start/).
 
 See [Configuration](/data-health-docs/reference/configuration/) for every available option and environment variable.
+
+## Coding agents and Laravel Boost
+
+The package bundles concise Boost guidelines and a `data-health-development` skill.
+With Laravel Boost installed, run `php artisan boost:install` and select the package
+guidelines and skill for your coding agent. Use `php artisan boost:update` to refresh
+installed guidance after package updates, checking that newly discovered resources
+are selected when prompted.
+
+Before asking an agent to generate findings or scan application code, have it read
+the skill. Without Boost, the installed file is
+`vendor/data-health/data-health/resources/boost/skills/data-health-development/SKILL.md`.
+The [skill source](https://github.com/data-health-php/data-health/blob/main/resources/boost/skills/data-health-development/SKILL.md)
+is also available online. Installing the Composer package alone does not ensure an
+agent has loaded its guidance.
+
+Start with [Establish the application rule](/data-health-docs/guides/detecting-problems/#establish-the-application-rule)
+to distinguish supported invariants from speculative checks and legitimate exceptions.
 
 ## Choose an interface
 
