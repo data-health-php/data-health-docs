@@ -20,25 +20,23 @@ hero:
 
 Database constraints and validation keep individual writes valid. They cannot always detect problems that emerge across records or over time: duplicate customers, orders stuck in an impossible state, missing relationships, or stale derived values.
 
-Data Health lets you express these application-specific rules as **finding classes**. When a rule finds a problem, Data Health creates a persistent **finding record** that your team can review, verify, and resolve.
-
-| Your application | Data Health |
-| --- | --- |
-| Defines what unhealthy data looks like and how it can be checked or corrected. | Records, deduplicates, and tracks every discovered occurrence. |
-
-| Operation | Scope and responsibility | Recommended inline result |
-| --- | --- | --- |
-| `detect()` | Search candidates and report each occurrence with `found()`. | `null` |
-| `verify()` | Recheck one occurrence without changing business data. | `bool` |
-| `resolve()` | Recheck one occurrence and apply a known application correction. | `bool` |
-
-A `true` verification or resolution result marks the finding record resolved.
-Implement resolution when a safe, deterministic correction is established; implementing
-it exposes an action, while automatic resolution requires a separate opt-in.
-For coding agents, load the [bundled guidance](/data-health-docs/start-here/installation/#coding-agents-and-laravel-boost)
-before scanning or generating findings.
+Data Health lets you express these application-specific rules as **finding classes**. Your application supplies the checks and corrections; Data Health records, deduplicates, and tracks each occurrence as a persistent **finding record** that your team can review, verify, and resolve.
 
 Finding classes live in configured directories such as `app/DataHealth`. Data Health discovers them automatically, so each class can focus on the problem it represents instead of registration boilerplate.
+
+## Detect, verify, resolve
+
+Each finding class can support detection, verification, and resolution. Detection searches for problems across your data; verification and resolution act on one recorded occurrence at a time.
+
+| Operation | What it does |
+| --- | --- |
+| `detect()` | Search candidates and report each occurrence with `found()`. |
+| `verify()` | Recheck one occurrence without changing business data. |
+| `resolve()` | Recheck one occurrence and apply a known application correction. |
+
+A `true` result from verification or resolution marks the finding record resolved. See the [contract reference](/data-health-docs/reference/attributes-and-contracts/#detection-contract) for method signatures and other supported return values.
+
+Add resolution when you have a safe, deterministic correction. Implementing it makes a resolution action available; [automatic resolution](/data-health-docs/guides/resolving-findings/#resolve-new-findings-automatically) requires a separate opt-in.
 
 ## From rule to tracked findings
 
@@ -116,3 +114,5 @@ Both packages use the same finding classes and records, so adding the Filament i
 ## Where to go next
 
 Follow the [Quick Start](/data-health-docs/start-here/quick-start/) to build a complete finding workflow, or begin with [Installation](/data-health-docs/start-here/installation/) to add Data Health to a Laravel application.
+
+If you use a coding agent, load the [bundled guidance](/data-health-docs/start-here/installation/#coding-agents-and-laravel-boost) before scanning or generating findings.
